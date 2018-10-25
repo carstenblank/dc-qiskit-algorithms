@@ -9,5 +9,5 @@ setup(name='qiskit_algorithms',
       author_email='blank@data-cybernetics.com',
       url='https://data-cybernetics.com',
       packages=['qiskit_algorithms'],
-      requires=['qiskit', 'numpy', 'scipy']
+      requires=['qiskit', 'numpy', 'scipy', 'bitstring', 'scikit_learn']
       )
