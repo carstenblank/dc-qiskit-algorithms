@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='qiskit_algorithms',
       version='1.0',
@@ -9,5 +9,5 @@ setup(name='qiskit_algorithms',
       author_email='blank@data-cybernetics.com',
       url='https://data-cybernetics.com',
       packages=['qiskit_algorithms'],
-      requires=['qiskit', 'numpy', 'scipy', 'bitstring', 'scikit_learn']
+      install_requires=['qiskit', 'numpy', 'scipy', 'bitstring', 'scikit_learn', 'ddt']
       )
