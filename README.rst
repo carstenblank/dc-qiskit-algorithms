@@ -1,17 +1,17 @@
-PennyLane qiskit Plugin
-#########################
+Data Cybernetics qiskit-algorithms
+###################################
 
 .. image:: https://img.shields.io/travis/com/carstenblank/dc-qiskit-algorithms/master.svg?style=for-the-badge
     :alt: Travis
     :target: https://travis-ci.com/carstenblank/dc-qiskit-algorithms
 
-.. image:: https://img.shields.io/codecov/c/github/carstenblank/qiskit-algorithms/master.svg?style=for-the-badge
+.. image:: https://img.shields.io/codecov/c/github/carstenblank/dc-qiskit-algorithms/master.svg?style=for-the-badge
     :alt: Codecov coverage
     :target: https://codecov.io/gh/carstenblank/dc-qiskit-algorithms
 
 .. image:: https://img.shields.io/codacy/grade/f4132f03ce224f82bd3e8ba436b52af3.svg?style=for-the-badge
     :alt: Codacy grade
-    :target: https://www.codacy.com/app/carstenblank/qiskit-algorithms?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carstenblank/dc-qiskit-algorithms&amp;utm_campaign=Badge_Grade
+    :target: https://www.codacy.com/app/carstenblank/dc-qiskit-algorithms?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=carstenblank/dc-qiskit-algorithms&amp;utm_campaign=Badge_Grade
 
 .. image:: https://img.shields.io/readthedocs/dc-qiskit-algorithms.svg?style=for-the-badge
     :alt: Read the Docs
