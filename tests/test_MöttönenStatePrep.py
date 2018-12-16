@@ -22,7 +22,8 @@ from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister, Result
 from qiskit.backends import BaseBackend, BaseJob
 from ddt import ddt, data as test_data, unpack
 
-from qiskit_algorithms.MöttönenStatePrep import state_prep_möttönen
+import defaults
+from dc_qiskit_algorithms.MöttönenStatePrep import state_prep_möttönen
 
 
 # noinspection NonAsciiCharacters

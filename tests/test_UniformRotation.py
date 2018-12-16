@@ -15,12 +15,12 @@
 
 import unittest
 
-import numpy
 from ddt import ddt, unpack, data
 from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit, Aer, execute, Result
 from qiskit.extensions.standard import x, h
 
-from qiskit_algorithms.UniformRotation import ccx
+import defaults
+from dc_qiskit_algorithms.UniformRotation import ccx
 
 
 @ddt
