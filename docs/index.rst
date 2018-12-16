@@ -29,8 +29,9 @@ Contents
 .. toctree::
    :maxdepth: 2
    :caption: Code details
+   :titlesonly:
 
-   draper_adder
+   draperadder
    qft
-   uniform_rotations
-   möttönen_state_prep
+   uniformrotations
+   möttönenstateprep
