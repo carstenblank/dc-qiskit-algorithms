@@ -1,0 +1,6 @@
+sphinxcontrib-bibtex
+ipykernel
+nbsphinx
+pygments-github-lexers
+pybind11
+qiskit
