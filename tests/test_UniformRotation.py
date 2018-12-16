@@ -63,7 +63,7 @@ class MultipleControlledNotGateTest(unittest.TestCase):
 
         backend = Aer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
-        sim_result: Result = job_sim.result()
+        sim_result = job_sim.result()  # type: Result
 
         counts = sim_result.get_counts(qc)  # type: dict
         self.assertIsNotNone(counts.keys())

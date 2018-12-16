@@ -63,7 +63,7 @@ class MöttönenStatePrepTests(unittest.TestCase):
 
         # Probability Vector by Measurement
         qc.measure(reg, c)
-        local_qasm_backend: BaseBackend = qiskit.Aer.get_backend('qasm_simulator')
+        local_qasm_backend = qiskit.Aer.get_backend('qasm_simulator')  # type: BaseBackend
         from qiskit import transpiler
         shots = 2**18
         qobj = transpiler.compile([qc], backend=local_qasm_backend, shots=shots)
