@@ -39,7 +39,7 @@ class MöttönenStatePrepTests(unittest.TestCase):
         qc = QuantumCircuit(reg, c, name='state prep')
         state_prep_möttönen(qc, vector, reg)
 
-        local_backend: BaseBackend = qiskit.Aer.get_backend('statevector_simulator')
+        local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
 
         qobj = qiskit.compile([qc], backend=local_backend, shots=1)
         job: BaseJob = local_backend.run(qobj)

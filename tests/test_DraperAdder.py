@@ -59,7 +59,7 @@ class DraperAdderTwoBitTest(unittest.TestCase):
 
         self.assertEqual(len(result_list), 1)
 
-        data: dict = result_list[0]
+        data = result_list[0]  # type: dict
         self.assertEqual(int(data['b'], 2), b, "Register b must be unchanged!")
         self.assertEqual(int(data['a'], 2), (a + b) % modulo, "Addition must be correctly performed!")
 
