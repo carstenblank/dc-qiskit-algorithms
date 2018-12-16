@@ -51,7 +51,7 @@ def compute_theta(alpha: sparse.dok_matrix) -> sparse.dok_matrix:
     k = np.log2(alpha.shape[0])
     factor = 2**(-k)
 
-    theta: sparse.dok_matrix = sparse.dok_matrix(alpha.shape, dtype=np.float64)
+    theta = sparse.dok_matrix(alpha.shape, dtype=np.float64)  # type: sparse.dok_matrix
     for row in range(alpha.shape[0]):
         # Use transpose of M:
         entry = sum([matrix_M_entry(col, row) * a for (col, _), a in alpha.items()])
@@ -78,7 +78,7 @@ class UniformRotationGate(CompositeGate):
         """Create new cu1 gate."""
         super().__init__("uni_rot_" + str(gate), [], control_qubits + [tgt], circ)
 
-        theta: sparse.dok_matrix = compute_theta(alpha)
+        theta = compute_theta(alpha)  # type: sparse.dok_matrix
 
         gray_code_rank = len(control_qubits)
         if gray_code_rank == 0:
@@ -86,7 +86,7 @@ class UniformRotationGate(CompositeGate):
             return
 
         from sympy.combinatorics.graycode import GrayCode
-        gc: GrayCode = GrayCode(gray_code_rank)
+        gc = GrayCode(gray_code_rank)  # type: GrayCode
 
         current_gray = gc.current
         for i in range(gc.selections):

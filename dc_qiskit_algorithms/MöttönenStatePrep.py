@@ -56,8 +56,8 @@ def get_alpha_y(a: sparse.dok_matrix, n: int, k: int) -> sparse.dok_matrix:
     for (j, _), e in denominator.items():
         denominator[j, 0] = 1/numpy.sqrt(e)
 
-    bla: sparse.csr_matrix = numerator.multiply(denominator)
-    for (j, _), e in bla.todok().items():
+    pre_alpha= numerator.multiply(denominator)  # type: sparse.csr_matrix
+    for (j, _), e in pre_alpha.todok().items():
         alpha[j, 0] = 2*numpy.arcsin(e)
 
     return alpha
@@ -69,8 +69,8 @@ class MöttönenStatePrep(CompositeGate):
     def __init__(self, vector: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]], circ=None):
         """Create new cu1 gate."""
         super().__init__("state_prep_möttönen", [], qubits, circ)
-        a: sparse.dok_matrix = sparse.dok_matrix(vector.get_shape())
-        omega: sparse.dok_matrix = sparse.dok_matrix(vector.get_shape())
+        a = sparse.dok_matrix(vector.get_shape())  # type: sparse.dok_matrix
+        omega = sparse.dok_matrix(vector.get_shape())  # type: sparse.dok_matrix
         for (i, j), v in vector.items():
             a[i, j] = numpy.absolute(v)
             omega[i, j] = numpy.angle(v)
@@ -81,7 +81,7 @@ class MöttönenStatePrep(CompositeGate):
     def apply_rot_y(self, a: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]]):
         n = int(math.log2(a.get_shape()[0]))
         for k in range(1, n + 1):
-            alpha_y_k: sparse.dok_matrix = get_alpha_y(a, n, k)
+            alpha_y_k = get_alpha_y(a, n, k)  # type: sparse.dok_matrix
             control = qubits[k:]
             target = qubits[k - 1]
             uniry(self, alpha_y_k, control, target)
