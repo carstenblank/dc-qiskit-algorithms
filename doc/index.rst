@@ -24,8 +24,6 @@ Contents
    license
    tutorials
 
-.. rst-class:: contents local topic
-
 .. toctree::
    :maxdepth: 2
    :caption: Code details

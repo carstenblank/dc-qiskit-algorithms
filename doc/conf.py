@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'DataC ybernetics qiskit-algorithms'
+project = 'Data Cybernetics qiskit-algorithms'
 copyright = "Copyright 2018, Carsten Blank"
 author = 'Carsten Blank'
 
