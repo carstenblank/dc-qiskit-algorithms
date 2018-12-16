@@ -27,7 +27,7 @@ def get_theta(k: int) -> float:
 
 
 def qft_reg(qc: QuantumCircuit, q: QuantumRegister):
-    q_list: List[Tuple[QuantumRegister, int]] = [q[i] for i in range(q.size)]
+    q_list = [q[i] for i in range(q.size)]  # type: List[Tuple[QuantumRegister, int]]
     return qft(qc, q_list)
 
 
@@ -47,7 +47,7 @@ def qft(qc: QuantumCircuit, q: List[Tuple[QuantumRegister, int]]):
 
 
 def qft_dg_reg(qc: QuantumCircuit, q: QuantumRegister):
-    q_list: List[Tuple[QuantumRegister, int]] = [q[i] for i in range(q.size)]
+    q_list= [q[i] for i in range(q.size)]  # type: List[Tuple[QuantumRegister, int]]
     return qft_dg(qc, q_list)
 
 

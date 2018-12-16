@@ -42,8 +42,8 @@ class MöttönenStatePrepTests(unittest.TestCase):
         local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
 
         qobj = qiskit.compile([qc], backend=local_backend, shots=1)
-        job: BaseJob = local_backend.run(qobj)
-        result: Result = job.result()
+        job = local_backend.run(qobj)  # type: BaseJob
+        result = job.result()  # type: Result
 
         # State vector
         result_state_vector = result.get_statevector('state prep')
@@ -67,8 +67,8 @@ class MöttönenStatePrepTests(unittest.TestCase):
         from qiskit import transpiler
         shots = 2**18
         qobj = transpiler.compile([qc], backend=local_qasm_backend, shots=shots)
-        job: BaseJob = local_qasm_backend.run(qobj)
-        result: Result = job.result()
+        job = local_qasm_backend.run(qobj)  # type: BaseJob
+        result = job.result()  # type: Result
         counts = result.get_counts('state prep')
         measurement_probability_vector = [0.0 for e in result_state_vector]
         for binary, count in sorted(counts.items()):

@@ -45,7 +45,7 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         job_sim = execute(qc, backend, shots=10000)
         sim_result = job_sim.result()  # type: Result
 
-        counts: dict = sim_result.get_counts(qc)
+        counts = sim_result.get_counts(qc)  # type: dict
         self.assertIsNotNone(counts.keys())
         self.assertListEqual(list(counts.keys()), ['1111'])
 
@@ -65,7 +65,7 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         job_sim = execute(qc, backend, shots=10000)
         sim_result: Result = job_sim.result()
 
-        counts: dict = sim_result.get_counts(qc)
+        counts = sim_result.get_counts(qc)  # type: dict
         self.assertIsNotNone(counts.keys())
         self.assertListEqual(list(counts.keys()), ['0000', '0001', '0100', '1101'])
 
