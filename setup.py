@@ -14,7 +14,7 @@
 # limitations under the License.
 from setuptools import setup
 
-with open("pennylane_qiskit/_version.py") as f:
+with open("dc_qiskit_algorithms/_version.py") as f:
     version = f.readlines()[-1].split()[-1].strip("\"'")
 
 with open("requirements.txt") as f:
