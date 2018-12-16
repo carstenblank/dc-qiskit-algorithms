@@ -1,0 +1,6 @@
+qiskit
+numpy
+scipy
+bitstring
+scikit_learn
+ddt
