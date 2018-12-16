@@ -1,4 +1,4 @@
-requirements_file: docs/requirements.txt
+requirements_file: doc/requirements.txt
 
 build:
     image: latest

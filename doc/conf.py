@@ -43,7 +43,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates', 'xanadu_theme']
+templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -55,7 +55,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'DataCybernetics-qiskit-algorithms'
+project = 'DataC ybernetics qiskit-algorithms'
 copyright = "Copyright 2018, Carsten Blank"
 author = 'Carsten Blank'
 
