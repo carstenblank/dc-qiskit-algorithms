@@ -16,7 +16,20 @@ from scipy import sparse
 from .UniformRotation import uniry, unirz
 
 
-def get_alpha(a: sparse.dok_matrix, n: int, k: int) -> sparse.dok_matrix:
+def get_alpha_z(omega, n: int, k: int) -> sparse.dok_matrix:
+    alpha_z_k = sparse.dok_matrix((2 ** (n - k), 1), dtype=numpy.float64)
+
+    for (i, _), om in omega.items():
+        i += 1
+        j = int(numpy.ceil(i * 2 ** (-k)))
+        s_condition = 2 ** (k - 1) * (2 * j - 1)
+        s_i = 1.0 if i > s_condition else -1.0
+        alpha_z_k[j - 1, 0] = alpha_z_k[j - 1, 0] + s_i * om / 2 ** (k - 1)
+
+    return alpha_z_k
+
+
+def get_alpha_y(a: sparse.dok_matrix, n: int, k: int) -> sparse.dok_matrix:
     alpha = sparse.dok_matrix((2**(n - k), 1), dtype=numpy.float64)
 
     numerator = sparse.dok_matrix((2 ** (n - k), 1), dtype=numpy.float64)
@@ -46,31 +59,6 @@ def get_alpha(a: sparse.dok_matrix, n: int, k: int) -> sparse.dok_matrix:
 class MöttönenStatePrep(CompositeGate):
     """Uniform rotation Y gate (Möttönen)."""
 
-    def apply_rot_y(self, a: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]]):
-        n = int(math.log2(a.get_shape()[0]))
-        for k in range(1, n + 1):
-            alpha_k: sparse.dok_matrix = get_alpha(a, n, k)
-            control = qubits[k:]
-            target = qubits[k - 1]
-            uniry(self, alpha_k, control, target)
-
-    def apply_rot_z(self, omega: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]]):
-        n = int(math.log2(omega.get_shape()[0]))
-        for k in range(1, n + 1):
-            alpha_z_k = sparse.dok_matrix((2**(n - k), 1), dtype=numpy.float64)
-
-            for (i, _), om in omega.items():
-                i += 1
-                j = int(numpy.ceil(i*2**(-k)))
-                s_condition = 2**(k - 1) * (2*j - 1)
-                s_i = 1.0 if i > s_condition else -1.0
-                alpha_z_k[j - 1, 0] = alpha_z_k[j - 1, 0] + s_i * om / 2**(k-1)
-
-            control = qubits[k:]
-            target = qubits[k - 1]
-            if len(alpha_z_k) != 0:
-                unirz(self, alpha_z_k, control, target)
-
     def __init__(self, vector: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]], circ=None):
         """Create new cu1 gate."""
         super().__init__("state_prep_möttönen", [], qubits, circ)
@@ -82,6 +70,23 @@ class MöttönenStatePrep(CompositeGate):
         self.apply_rot_z(omega, qubits)
         self.apply_rot_y(a, qubits)
         self.inverse()
+
+    def apply_rot_y(self, a: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]]):
+        n = int(math.log2(a.get_shape()[0]))
+        for k in range(1, n + 1):
+            alpha_y_k: sparse.dok_matrix = get_alpha_y(a, n, k)
+            control = qubits[k:]
+            target = qubits[k - 1]
+            uniry(self, alpha_y_k, control, target)
+
+    def apply_rot_z(self, omega: sparse.dok_matrix, qubits: List[Tuple[QuantumRegister, int]]):
+        n = int(math.log2(omega.get_shape()[0]))
+        for k in range(1, n + 1):
+            alpha_z_k = get_alpha_z(omega, n, k)
+            control = qubits[k:]
+            target = qubits[k - 1]
+            if len(alpha_z_k) != 0:
+                unirz(self, alpha_z_k, control, target)
 
 
 def state_prep_möttönen(self, a: Union[List[float], sparse.dok_matrix],
