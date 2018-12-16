@@ -1,5 +1,5 @@
 Data Cybernetics qiskit algorithms
-#########################
+##################################
 
 :Release: |release|
 :Date: |today|
@@ -24,6 +24,8 @@ Contents
    license
    tutorials
 
+.. rst-class:: contents local topic
+
 .. toctree::
    :maxdepth: 2
    :caption: Code details
@@ -32,4 +34,4 @@ Contents
    draperadder
    qft
    uniformrotations
-   möttönenstateprep
+   möttonenstateprep
