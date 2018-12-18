@@ -12,24 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 r"""
-DraperAdder
-=======
+UniformRotation
+================
 
 .. currentmodule:: dc_qiskit_algorithms.UniformRotation
-
-This is the legendary Draper adder (arXiv:quant-ph/0008033).
-
-.. autosummary::
-   :nosignatures:
-
-   draper_adder
-
-More details:
-
-draper_adder
-############
-
-.. autofunction:: draper_adder
 
 """
 import logging
