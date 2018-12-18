@@ -11,8 +11,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+r"""
+DraperAdder
+=======
 
+.. currentmodule:: dc_qiskit_algorithms.DraperAdder
 
+This is the legendary Draper adder (arXiv:quant-ph/0008033).
+
+.. autosummary::
+   :nosignatures:
+
+   draper_adder
+
+More details:
+
+draper_adder
+############
+
+.. autofunction:: draper_adder
+
+"""
 from typing import Optional, Tuple
 
 import qiskit
@@ -22,7 +41,16 @@ from qiskit.extensions import standard
 from . import Qft as qft
 
 
-def draper_adder(input_a: int, input_b: int, length: Optional[int] = None) -> Tuple[QuantumCircuit, float]:
+def draper_adder(input_a, input_b, length = None):
+    # type: (int, int, Optional[int]) -> Tuple[QuantumCircuit, float]
+    """
+    The Draper adder (arXiv:quant-ph/0008033), provide a and b and make sure to define a size of
+    a register that can hold a or b
+    :param input_a: integer a
+    :param input_b: integer b
+    :param length: size of qubit registers
+    :return: tuple of the circuit and the length of the register
+    """
     a_01s = "{0:b}".format(input_a)
     b_01s = "{0:b}".format(input_b)
     length = max(len(a_01s), len(b_01s), length if length is not None else 0)
@@ -45,7 +73,7 @@ def draper_adder(input_a: int, input_b: int, length: Optional[int] = None) -> Tu
         if c == '1':
             standard.x(qc, b[i])
 
-    qft.qft_reg(qc, a)
+    qft.qft(qc, a)
 
     for b_index in reversed(range(b.size)):
         theta_index = 1
@@ -53,12 +81,7 @@ def draper_adder(input_a: int, input_b: int, length: Optional[int] = None) -> Tu
             standard.cu1(qc, qft.get_theta(theta_index), b[b_index], a[a_index])
             theta_index += 1
 
-    # standard.cu1(qc, qft.get_theta(1), b[1], a[1])
-    # standard.cu1(qc, qft.get_theta(2), b[1], a[0])
-    #
-    # standard.cu1(qc, qft.get_theta(1), b[0], a[0])
-
-    qft.qft_dg_reg(qc, a)
+    qft.qft_dg(qc, a)
 
     standard.barrier(qc, a, b)
 
