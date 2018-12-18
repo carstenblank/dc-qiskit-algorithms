@@ -13,7 +13,7 @@
 # limitations under the License.
 r"""
 DraperAdder
-=======
+===========
 
 .. currentmodule:: dc_qiskit_algorithms.DraperAdder
 

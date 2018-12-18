@@ -33,5 +33,5 @@ Contents
 
    draperadder
    qft
-   uniformrotations
+   uniformrotation
    mottonenstateprep

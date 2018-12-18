@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 r"""
-DraperAdder
-=======
+MöttönenStatePrep
+==================
 
 .. currentmodule:: dc_qiskit_algorithms.MöttönenStatePrep
 
@@ -52,7 +52,7 @@ get_alpha_y
 .. autofunction:: state_prep_möttönen_dg
 
 MöttönenStatePrep
-#################
+##################
 
 .. autoclass:: MöttönenStatePrep
 

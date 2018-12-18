@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 r"""
-DraperAdder
-=======
+Qft
+====
 
 .. currentmodule:: dc_qiskit_algorithms.Qft
 
@@ -34,12 +34,12 @@ get_theta
 .. autofunction:: get_theta
 
 qft
-###
+####
 
 .. autofunction:: qft
 
 qft_dg
-######
+#######
 
 .. autofunction:: qft_dg
 
