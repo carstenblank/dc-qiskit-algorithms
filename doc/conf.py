@@ -65,6 +65,7 @@ author = 'Carsten Blank'
 
 # avoid qiskit dependency by directly importing the version
 from dc_qiskit_algorithms._version import __version__
+from qiskit import Gate, CompositeGate
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
