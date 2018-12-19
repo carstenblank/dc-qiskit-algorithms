@@ -71,7 +71,7 @@ pairwise
 UniformRotationGate
 ####################
 
-.. autofunction:: UniformRotationGate
+.. autoclass:: UniformRotationGate
 
 uni_rot
 ########
@@ -106,7 +106,7 @@ uniry_dg
 MultiControlledXGate
 #####################
 
-.. autofunction:: MultiControlledXGate
+.. autoclass:: MultiControlledXGate
 
 ccx
 #####
@@ -427,7 +427,7 @@ def ccx(self, conditional_case, control_qubits, tgt):
     return self._attach(MultiControlledXGate(conditional_case, control_qubits, tgt, self))
 
 
-def ccx_dg(self, conditial_case, control_qubits, tgt):
+def ccx_dg(self, conditional_case, control_qubits, tgt):
     # type: (Union[CompositeGate, QuantumCircuit], int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Union[Gate, InstructionSet]
     """
     Apply the dagger (inverse) a multi-controlled X gate depending on conditional binary representation
@@ -437,7 +437,7 @@ def ccx_dg(self, conditial_case, control_qubits, tgt):
     :param tgt: target
     :return: applied composite gate or circuit
     """
-    return ccx(self, conditial_case, control_qubits, tgt).inverse()
+    return ccx(self, conditional_case, control_qubits, tgt).inverse()
 
 
 QuantumCircuit.uniry = uniry
