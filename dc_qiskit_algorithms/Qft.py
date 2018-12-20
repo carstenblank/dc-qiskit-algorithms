@@ -48,8 +48,8 @@ qft_dg
 import math
 from typing import Tuple, List, Union
 
-from qiskit import QuantumCircuit, QuantumRegister, Gate
 import qiskit.extensions.standard as standard
+from qiskit import QuantumRegister, QuantumCircuit
 
 
 def get_theta(k):
@@ -98,7 +98,7 @@ def qft_dg(qc, q):
         :param q: the quantum register or list of quantum register/index tuples
         :return: the circuit with applied qft_dag
         """
-    qc2 = QuantumCircuit(*qc.get_qregs().values(), *qc.get_cregs().values())
+    qc2 = QuantumCircuit(*qc.qregs, *qc.cregs)
     qft(qc2, q)
     new_data = [op.inverse() for op in reversed(qc2.data)]
     qc2.data = new_data

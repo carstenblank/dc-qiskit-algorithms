@@ -46,10 +46,10 @@ class DraperAdderTwoBitTest(unittest.TestCase):
                  a, "{0:b}".format(a), b, "{0:b}".format(b))
         qc, modulo = draper_adder(a, b, length)
 
-        from qiskit import transpiler
+        from qiskit import compile
 
-        backend = qiskit.Aer.get_backend('qasm_simulator')
-        qobj = transpiler.compile([qc], backend=backend, shots=8192)
+        backend = qiskit.BasicAer.get_backend('qasm_simulator')
+        qobj = compile([qc], backend=backend, shots=8192)
 
         job = backend.run(qobj)
         result_list = [{'b': k[::-1].split(' ')[1], 'a': k[::-1].split(' ')[0], 'counts': v}

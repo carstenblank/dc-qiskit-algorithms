@@ -62,7 +62,8 @@ import math
 from typing import List, Tuple, Union, Optional
 
 import numpy
-from qiskit import CompositeGate, QuantumRegister, QuantumCircuit, InstructionSet, Gate
+from qiskit import QuantumRegister, QuantumCircuit
+from qiskit.circuit import InstructionSet, CompositeGate, Gate
 from scipy import sparse
 
 from .UniformRotation import uniry, unirz

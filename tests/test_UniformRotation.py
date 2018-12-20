@@ -15,9 +15,12 @@
 
 import unittest
 
+import qiskit
 from ddt import ddt, unpack, data
-from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit, Aer, execute, Result
+from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit, execute
+from qiskit.circuit.measure import measure
 from qiskit.extensions.standard import x, h
+from qiskit.result import Result
 
 import defaults
 from dc_qiskit_algorithms.UniformRotation import ccx
@@ -39,9 +42,9 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         x(qc, q[2])
         x(qc, q[3])
         ccx(qc, 7, [q[1], q[2], q[3]], q[0])
-        qc.measure(q, c)
+        measure(qc, q, c)
 
-        backend = Aer.get_backend('qasm_simulator')
+        backend = qiskit.BasicAer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
         sim_result = job_sim.result()  # type: Result
 
@@ -59,15 +62,15 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         # State now ['0000', '0001', '0100', '0101']
         ccx(qc, 5, [q[0], q[1], q[2]], q[3])
         # State now ['0000', '0001', '0100', '1101']
-        qc.measure(q, c)
+        measure(qc, q, c)
 
-        backend = Aer.get_backend('qasm_simulator')
+        backend = qiskit.BasicAer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
         sim_result = job_sim.result()  # type: Result
 
         counts = sim_result.get_counts(qc)  # type: dict
         self.assertIsNotNone(counts.keys())
-        self.assertListEqual(list(counts.keys()), ['0000', '0001', '0100', '1101'])
+        self.assertListEqual(list(sorted(counts.keys())), ['0000', '0001', '0100', '1101'])
 
 
 if __name__ == '__main__':

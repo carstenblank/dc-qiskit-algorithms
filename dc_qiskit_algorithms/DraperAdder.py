@@ -36,6 +36,7 @@ from typing import Optional, Tuple
 
 import qiskit
 from qiskit import QuantumCircuit
+from qiskit.circuit.measure import measure
 from qiskit.extensions import standard
 
 from . import Qft as qft
@@ -85,7 +86,7 @@ def draper_adder(input_a, input_b, length = None):
 
     standard.barrier(qc, a, b)
 
-    qc.measure(a, c_a)
-    qc.measure(b, c_b)
+    measure(qc, a, c_a)
+    measure(qc, b, c_b)
 
     return qc, 2**length

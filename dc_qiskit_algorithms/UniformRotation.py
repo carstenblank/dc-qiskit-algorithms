@@ -124,8 +124,9 @@ from itertools import tee
 from typing import List, Tuple, Union, Callable, Iterable, Optional
 
 import numpy as np
-from qiskit import CompositeGate, QuantumRegister, QuantumCircuit, InstructionSet, Gate
-from qiskit._register import Register
+from qiskit import QuantumRegister, QuantumCircuit
+from qiskit.circuit import CompositeGate, InstructionSet, Gate
+from qiskit.circuit.register import Register
 from qiskit.extensions.standard import ry, rz, cx
 from scipy import sparse
 
@@ -375,7 +376,7 @@ class MultiControlledXGate(CompositeGate):
     """Multi-Controlled X-Gate (via Möttönen)."""
 
     def __init__(self, conditional_case, control_qubits, tgt, circ=None):
-        # type: (int, Union[List[Tuple[Register, int]],QuantumRegister], Union[Tuple[Register, int], QuantumRegister], Optional[QuantumCircuit]) -> None
+        # type: (int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[Register, int], QuantumRegister], Optional[QuantumCircuit]) -> None
         """
         Create a new multi-controlled X gate according to the conditional (binary) case
         :param conditional_case: binary representation of 0/1 control case
@@ -398,7 +399,7 @@ class MultiControlledXGate(CompositeGate):
         Representation of this object.
         :return: string representing this object
         """
-        return "{}({}) {};".format(self.name, self.param, ["{}[{}]".format(q.name, i) for q, i in self.arg])
+        return "{}({}) {};".format(self.name, self.param, ["{}[{}]".format(q.name, i) for q, i in self.qargs])
 
 
 def ccx(self, conditional_case, control_qubits, tgt):

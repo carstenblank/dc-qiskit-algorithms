@@ -18,9 +18,11 @@ from typing import List
 
 import numpy
 import qiskit
-from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister, Result
-from qiskit.backends import BaseBackend, BaseJob
+from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
 from ddt import ddt, data as test_data, unpack
+from qiskit.circuit.measure import measure
+from qiskit.providers import BaseBackend, BaseJob
+from qiskit.result import Result
 
 import defaults
 from dc_qiskit_algorithms.MöttönenStatePrep import state_prep_möttönen
@@ -39,7 +41,7 @@ class MöttönenStatePrepTests(unittest.TestCase):
         qc = QuantumCircuit(reg, c, name='state prep')
         state_prep_möttönen(qc, vector, reg)
 
-        local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
+        local_backend = qiskit.BasicAer.get_backend('statevector_simulator')  # type: BaseBackend
 
         qobj = qiskit.compile([qc], backend=local_backend, shots=1)
         job = local_backend.run(qobj)  # type: BaseJob
@@ -62,11 +64,11 @@ class MöttönenStatePrepTests(unittest.TestCase):
             self.assertAlmostEqual(expected, actual, places=2)
 
         # Probability Vector by Measurement
-        qc.measure(reg, c)
-        local_qasm_backend = qiskit.Aer.get_backend('qasm_simulator')  # type: BaseBackend
-        from qiskit import transpiler
-        shots = 2**18
-        qobj = transpiler.compile([qc], backend=local_qasm_backend, shots=shots)
+        measure(qc, reg, c)
+        local_qasm_backend = qiskit.BasicAer.get_backend('qasm_simulator')  # type: BaseBackend
+        from qiskit import compile
+        shots = 2**12
+        qobj = compile([qc], backend=local_qasm_backend, shots=shots)
         job = local_qasm_backend.run(qobj)  # type: BaseJob
         result = job.result()  # type: Result
         counts = result.get_counts('state prep')
@@ -79,7 +81,7 @@ class MöttönenStatePrepTests(unittest.TestCase):
 
         print(["{0:.3f}".format(e) for e in measurement_probability_vector])
         for expected, actual in zip(probability_vector, measurement_probability_vector):
-            self.assertAlmostEqual(expected, actual, places=2)
+            self.assertAlmostEqual(expected, actual, delta=0.02)
 
     @unpack
     @test_data(
