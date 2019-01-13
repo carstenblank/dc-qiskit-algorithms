@@ -6,7 +6,7 @@ python:
 env:
   - LOGGING=info
 install:
-  - pip install --ugrade -r requirements.txt
+  - pip install --upgrade -r requirements.txt
   - pip install --upgrade pytest pytest-cov wheel codecov
   - python setup.py bdist_wheel
   - pip install dist/dc_qiskit_algorithms*.whl
