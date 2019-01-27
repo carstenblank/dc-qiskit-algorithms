@@ -35,3 +35,4 @@ Contents
    qft
    uniformrotation
    mottonenstateprep
+   flipflipquantumram
