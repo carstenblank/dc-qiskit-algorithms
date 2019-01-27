@@ -50,15 +50,10 @@ add_vector
 import math
 from typing import Tuple, List, Union
 
-import numpy
-import qiskit
 from bitarray import bitarray
-from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
-from qiskit.circuit.measure import measure
+from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit.register import Register
-from qiskit.extensions.standard import x, h
-from qiskit.providers import BaseBackend, BaseJob
-from qiskit.result import Result
+from qiskit.extensions.standard import x
 
 from .UniformRotation import cnry
 
