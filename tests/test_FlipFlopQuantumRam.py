@@ -106,7 +106,7 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         print("Measurement Probability on the correct (1) branch:")
         print(["{0:.3f}".format(e) for e in measurement_probability_vector])
         for expected, actual in zip(probability_vector, measurement_probability_vector):
-            self.assertAlmostEqual(expected, actual, delta=0.03)
+            self.assertAlmostEqual(expected, actual, delta=0.05)
 
     @unpack
     @test_data(
