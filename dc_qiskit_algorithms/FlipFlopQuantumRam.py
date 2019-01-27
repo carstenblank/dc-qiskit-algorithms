@@ -96,7 +96,7 @@ class FFQramEntry(object):
         return self.get_bits().length()
 
     def add_to_circuit(self, qc, bus, register):
-        # type: (FFQramEntry, QuantumCircuit, QuantumRegister, Tuple[QuantumRegister, int]) -> QuantumCircuit
+        # type: (FFQramEntry, QuantumCircuit, Union[QuantumRegister, list], Tuple[QuantumRegister, int]) -> QuantumCircuit
         """
         This method adds the gates to encode this entry into the circuit
         :param qc: quantum circuit to apply the entry to
@@ -107,17 +107,20 @@ class FFQramEntry(object):
         theta = math.asin(self.probability_amplitude)
         if theta == 0:
             return qc
-
-        bus_register = [(bus, i) for i in range(bus.size)]
+        bus_register = []  # type: List[Tuple[QuantumRegister, int]]
+        if isinstance(bus, QuantumRegister):
+            bus_register = [(bus, i) for i in range(bus.size)]
+        else:
+            bus_register = bus
 
         ba = self.get_bits()
-        for i in range(bus.size - ba.length()):
+        for i in range(len(bus_register) - ba.length()):
             ba.append(False)
 
         for i, b in enumerate(ba):
             if not b: x(qc, bus_register[i])
 
-        cnry(qc, theta, bus, register)
+        cnry(qc, theta, bus_register, register)
 
         for i, b in enumerate(ba):
             if not b: x(qc, bus_register[i])
@@ -155,7 +158,7 @@ class FFQramDb(List[FFQramEntry]):
         return max([e.bus_size() for e in self])
 
     def add_to_circuit(self, qc, bus, register):
-        # type: (FFQramDb, QuantumCircuit, QuantumRegister, Tuple[Union[QuantumRegister, Register], int]) -> None
+        # type: (FFQramDb, QuantumCircuit, Union[QuantumRegister, list], Tuple[Union[QuantumRegister, Register], int]) -> None
         """
         Add the DB to the circuit.
 
