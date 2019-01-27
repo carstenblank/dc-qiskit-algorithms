@@ -2,5 +2,6 @@ qiskit
 numpy
 scipy
 bitstring
+bitarray
 scikit_learn
 ddt
