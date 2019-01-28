@@ -66,19 +66,10 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         print("State vector on the correct (1) branch:")
         print(["{0:.2f}".format(e) for e in correct_branch_state])
 
-        sign = 1.0
-        if abs(vector[0] - result_state_vector[0].real) > 1e-6:
-            sign = -1.0
+        positive_global_phase_all_almost_equal = all(abs(a - e) < 0.02 for a, e in zip(vector, correct_branch_state))
+        negative_global_phase_all_almost_equal = all(abs(a + e) < 0.02 for a, e in zip(vector, correct_branch_state))
 
-        for expected, actual in zip(vector, correct_branch_state):
-            self.assertAlmostEqual(actual.imag, 0.0, places=6)
-            self.assertAlmostEqual(expected, sign*actual.real, delta=0.02)
-
-        # Probability vector from state vector
-        # result_probability_vector = [numpy.absolute(e)**2 for e in result_state_vector]
-        # print(["{0:.3f}".format(e) for e in result_probability_vector])
-        # for expected, actual in zip(probability_vector, result_probability_vector):
-        #     self.assertAlmostEqual(expected, actual, places=2)
+        self.assertTrue(positive_global_phase_all_almost_equal or negative_global_phase_all_almost_equal)
 
         # Probability Vector by Measurement
         measure(qc, bus, c_bus)
