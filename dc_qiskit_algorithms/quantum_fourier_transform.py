@@ -46,7 +46,7 @@ qft_dg
 """
 
 import math
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union  # pylint: disable=unused-argument
 
 import qiskit.extensions.standard as standard
 from qiskit import QuantumRegister, QuantumCircuit
@@ -65,42 +65,42 @@ def get_theta(k):
     return lam
 
 
-def qft(qc, q):
+def qft(q_circuit, q_register):
     # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> QuantumCircuit
     """
     Applies the Quantum Fourier Transform to q
-    :param qc: the circuit to which the qft is applied
-    :param q: the quantum register or list of quantum register/index tuples
+    :param q_circuit: the circuit to which the qft is applied
+    :param q_register: the quantum register or list of quantum register/index tuples
     :return: the circuit with applied qft
     """
     q_list = []  # type: List[Tuple[QuantumRegister, int]]
-    if isinstance(q, QuantumRegister):
-        q_list = [q[i] for i in range(q.size)]
+    if isinstance(q_register, QuantumRegister):
+        q_list = [q_register[i] for i in range(q_register.size)]
     else:
-        q_list = q
+        q_list = q_register
 
     unused = q_list.copy()
-    for qr in q_list:
-        standard.h(qc, qr)
+    for q_regs in q_list:
+        standard.h(q_circuit, q_regs)
         k = 2
-        unused.remove(qr)
-        for qj in reversed(unused):
-            standard.cu1(qc, get_theta(k), qj, qr)
+        unused.remove(q_regs)
+        for q_j in unused:
+            standard.cu1(q_circuit, get_theta(k), q_j, q_regs)
             k = k + 1
-    return qc
+    return q_circuit
 
 
-def qft_dg(qc, q):
+def qft_dg(q_circuit, q_register):
     # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> QuantumCircuit
     """
         Applies the inverse Quantum Fourier Transform to q
-        :param qc: the circuit to which the qft_dag is applied
-        :param q: the quantum register or list of quantum register/index tuples
+        :param q_circuit: the circuit to which the qft_dag is applied
+        :param q_register: the quantum register or list of quantum register/index tuples
         :return: the circuit with applied qft_dag
         """
-    qc2 = QuantumCircuit(*qc.qregs, *qc.cregs)
-    qft(qc2, q)
-    new_data = [op.inverse() for op in reversed(qc2.data)]
-    qc2.data = new_data
-    qc.extend(qc2)
-    return qc
+    q_circuit_2 = QuantumCircuit(*q_circuit.qregs, *q_circuit.cregs)
+    qft(q_circuit_2, q_register)
+    new_data = [op.inverse() for op in reversed(q_circuit_2.data)]
+    q_circuit_2.data = new_data
+    q_circuit.extend(q_circuit_2)
+    return q_circuit
