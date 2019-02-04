@@ -32,24 +32,32 @@ draper_adder
 .. autofunction:: draper_adder
 
 """
-from typing import Optional, Tuple
+from typing import Optional, Tuple # pylint: disable=unused-argument
 
 import qiskit
-from qiskit import QuantumCircuit
+from qiskit import QuantumCircuit # pylint: disable=unused-argument
 from qiskit.circuit.measure import measure
 from qiskit.extensions import standard
 
-from . import Qft as qft
+from . import quantum_fourier_transform as qft
 
 
-def draper_adder(input_a, input_b, length = None):
-    # type: (int, int, Optional[int]) -> Tuple[QuantumCircuit, float]
+def draper_adder(input_a, input_b, length=None, with_barriers=False, with_measurement=True, pre_circuit=None):
+    # type: (int, int, Optional[int], bool, bool, Optional[QuantumCircuit]) -> Tuple[QuantumCircuit, float]
     """
     The Draper adder (arXiv:quant-ph/0008033), provide a and b and make sure to define a size of
-    a register that can hold a or b
+    a register that can hold a or b.
+    A new circuit is created with registers a and b of necessary size. Set to False if you need
+    to work with the results afterwards.
+    A pre-circuit may be provided, but it must use quantum registers with the name 'a', 'b' and
+    correct size size.
+
     :param input_a: integer a
     :param input_b: integer b
     :param length: size of qubit registers
+    :param with_barriers: includes barriers between QFT - adder - Qft_dg. Defaults to False
+    :param with_measurement: includes measurements if True (default)
+    :param pre_circuit: A circuit to be used before the addition is done. Will cause an error if not compatible.
     :return: tuple of the circuit and the length of the register
     """
     a_01s = "{0:b}".format(input_a)
@@ -60,11 +68,20 @@ def draper_adder(input_a, input_b, length = None):
 
     a = qiskit.QuantumRegister(len(a_01s), "a")
     b = qiskit.QuantumRegister(len(b_01s), "b")
+    qc = qiskit.QuantumCircuit(a, b, name='draper adder')
+
+    # Will only be used if measurements are taken
     c_a = qiskit.ClassicalRegister(len(a_01s), "c_a")
     c_b = qiskit.ClassicalRegister(len(b_01s), "c_b")
-    qc = qiskit.QuantumCircuit(a, b, c_a, c_b, name='draper adder')
+    if with_measurement:
+        qc.add_register(c_a)
+        qc.add_register(c_b)
 
-    standard.barrier(qc, a, b)
+    if pre_circuit:
+        qc += pre_circuit
+
+    if with_barriers:
+        standard.barrier(qc, a, b)
 
     for i, c in enumerate(a_01s):
         if c == '1':
@@ -74,7 +91,13 @@ def draper_adder(input_a, input_b, length = None):
         if c == '1':
             standard.x(qc, b[i])
 
+    if with_barriers:
+        standard.barrier(qc, a, b)
+
     qft.qft(qc, a)
+
+    if with_barriers:
+        standard.barrier(qc, a, b)
 
     for b_index in reversed(range(b.size)):
         theta_index = 1
@@ -82,11 +105,16 @@ def draper_adder(input_a, input_b, length = None):
             standard.cu1(qc, qft.get_theta(theta_index), b[b_index], a[a_index])
             theta_index += 1
 
+    if with_barriers:
+        standard.barrier(qc, a, b)
+
     qft.qft_dg(qc, a)
 
-    standard.barrier(qc, a, b)
+    if with_barriers:
+        standard.barrier(qc, a, b)
 
-    measure(qc, a, c_a)
-    measure(qc, b, c_b)
+    if with_measurement:
+        measure(qc, a, c_a)
+        measure(qc, b, c_b)
 
     return qc, 2**length
