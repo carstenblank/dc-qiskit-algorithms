@@ -132,6 +132,7 @@ from scipy import sparse
 log = logging.getLogger('UniformRotation')
 
 
+# noinspection PyPep8Naming
 def binary_codes(number_qubits):
     # type: (int) -> List[int]
     """
@@ -153,6 +154,7 @@ def gray_code(number):
     return (number >> 1) ^ number
 
 
+# noinspection PyPep8Naming
 def matrix_M_entry(row, col):
     # type: (int, int) -> float
     """
