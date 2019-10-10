@@ -59,14 +59,15 @@ MöttönenStatePrep
 """
 
 import math
-from typing import List, Tuple, Union, Optional
+from typing import List, Tuple, Union
 
 import numpy
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.circuit import InstructionSet, CompositeGate, Gate
+from qiskit.circuit import Gate, Instruction, Qubit, Clbit
+from qiskit.extensions import RYGate, RZGate
 from scipy import sparse
 
-from .UniformRotation import uniry, unirz
+from .UniformRotation import UniformRotationGate
 
 
 def get_alpha_z(omega, n, k):
