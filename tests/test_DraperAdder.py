@@ -18,9 +18,10 @@ import logging
 
 import qiskit
 from ddt import ddt, data as test_data, unpack
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit.providers.aer.backends.aerbackend import AerBackend
 
-import defaults
-from dc_qiskit_algorithms.DraperAdder import draper_adder
+import dc_qiskit_algorithms.DraperAdder
 
 logging.basicConfig(format=logging.BASIC_FORMAT, level='INFO')
 log = logging.getLogger('test_DraperAdder')
@@ -44,16 +45,25 @@ class DraperAdderTwoBitTest(unittest.TestCase):
     def test_two_bit_adder(self, a, b, length):
         log.info("Testing 'DraperAdder' with a=%d(%s), b=%d(%s).",
                  a, "{0:b}".format(a), b, "{0:b}".format(b))
-        qc, modulo = draper_adder(a, b, length)
 
-        from qiskit import compile
+        length = dc_qiskit_algorithms.DraperAdderGate.compute_length(a, b, length)
+        qubit_a = QuantumRegister(length, "a")
+        qubit_b = QuantumRegister(length, "b")
+        readout_a = ClassicalRegister(length, "c_a")
+        readout_b = ClassicalRegister(length, "c_b")
+        qc = QuantumCircuit(qubit_a, qubit_b, readout_a, readout_b, name="draper adder")
 
-        backend = qiskit.BasicAer.get_backend('qasm_simulator')
-        qobj = compile([qc], backend=backend, shots=8192)
+        qc.add_draper(a, b, list(qubit_a) + list(qubit_b), length)
 
-        job = backend.run(qobj)
-        result_list = [{'b': k[::-1].split(' ')[1], 'a': k[::-1].split(' ')[0], 'counts': v}
-         for k, v in job.result().get_counts().items()]
+        qc.measure(qubit_a, readout_a)
+        qc.measure(qubit_b, readout_b)
+
+        backend = qiskit.Aer.get_backend('qasm_simulator')  # type: AerBackend
+        job = qiskit.execute(qc, backend, shots=8192)
+
+        counts = job.result().get_counts()
+
+        result_list = [{'b': k[::-1].split(' ')[1], 'a': k[::-1].split(' ')[0], 'counts': v} for k, v in counts.items()]
 
         log.info(result_list)
 
@@ -61,7 +71,7 @@ class DraperAdderTwoBitTest(unittest.TestCase):
 
         data = result_list[0]  # type: dict
         self.assertEqual(int(data['b'], 2), b, "Register b must be unchanged!")
-        self.assertEqual(int(data['a'], 2), (a + b) % modulo, "Addition must be correctly performed!")
+        self.assertEqual(int(data['a'], 2), (a + b) % 2**length, "Addition must be correctly performed!")
 
 
 if __name__ == '__main__':
