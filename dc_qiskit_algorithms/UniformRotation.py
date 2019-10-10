@@ -340,7 +340,7 @@ def uniry_dg(self, alpha, control_qubits, tgt):
 
 
 def cnry(self, theta, control_qubits, tgt):
-    # type: (Union[CompositeGate, QuantumCircuit], float, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Union[Gate, InstructionSet]
+    # type: (QuantumCircuit, float, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
     """
     Apply a multiple controlled y rotation on the target qubit.
     :param self: either a composite gate or a circuit
@@ -356,7 +356,7 @@ def cnry(self, theta, control_qubits, tgt):
 
 
 def cnry_dg(self, theta, control_qubits, tgt):
-    # type: (Union[CompositeGate, QuantumCircuit], float, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Union[Gate, InstructionSet]
+    # type: (QuantumCircuit, float, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
     """
     Apply the dagger (inverse) of a multiple controlled y rotation on the target qubit.
     :param self: either a composite gate or a circuit
