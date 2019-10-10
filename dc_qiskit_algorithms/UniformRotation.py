@@ -368,34 +368,32 @@ def cnry_dg(self, theta, control_qubits, tgt):
     return cnry(self, theta, control_qubits, tgt).inverse()
 
 
-class MultiControlledXGate(CompositeGate):
+class MultiControlledXGate(Gate):
     """Multi-Controlled X-Gate (via Möttönen)."""
 
-    def __init__(self, conditional_case, control_qubits, tgt, circ=None):
-        # type: (int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[Register, int], QuantumRegister], Optional[QuantumCircuit]) -> None
+    def __init__(self, conditional_case, control_qubits):
+        # type: (int, int) -> None
         """
         Create a new multi-controlled X gate according to the conditional (binary) case
         :param conditional_case: binary representation of 0/1 control case
         :param control_qubits: control qubits
-        :param tgt: target qubit
-        :param circ: circuit this gate is applied to
         """
-        super().__init__("ccx_uni_rot", [conditional_case], control_qubits + [tgt], circ)
+        super().__init__("ccx_uni_rot", params=[conditional_case], num_qubits=control_qubits + 1)
+        self.conditional_case = conditional_case
+        self.control_qubits = control_qubits
 
-        length = 2 ** len(control_qubits)
+    def _define(self):
+        q = QuantumRegister(self.num_qubits, "q")
+        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
+
+        length = 2 ** self.control_qubits
         alpha = sparse.dok_matrix((length, 1), dtype=np.float64)
-        alpha[conditional_case] = np.pi
-        from qiskit.extensions.standard import h
-        h(self, tgt)
-        uniry(self, alpha, control_qubits, tgt)
-        h(self, tgt)
+        alpha[self.conditional_case] = np.pi
+        rule.append((HGate(), [q[-1]], []))
+        rule.append((UniformRotationGate(standard.RYGate, alpha), list(q), []))
+        rule.append((HGate(), [q[-1]], []))
 
-    def __repr__(self):
-        """
-        Representation of this object.
-        :return: string representing this object
-        """
-        return "{}({}) {};".format(self.name, self.param, ["{}[{}]".format(q.name, i) for q, i in self.qargs])
+        self._definition = rule.copy()
 
 
 def ccx(self, conditional_case, control_qubits, tgt):
