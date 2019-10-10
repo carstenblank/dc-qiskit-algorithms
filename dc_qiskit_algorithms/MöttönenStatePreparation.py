@@ -201,6 +201,8 @@ class MöttönenStatePreparationGate(Gate):
 
         return rule
 
+
+# noinspection NonAsciiCharacters
 def state_prep_möttönen(self, a, qubits):
     # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit], QuantumRegister]) -> Instruction
     """
@@ -219,6 +221,7 @@ def state_prep_möttönen(self, a, qubits):
         return self.append(MöttönenStatePreparationGate(sparse.dok_matrix([a]).transpose()), qubits)
 
 
+# noinspection NonAsciiCharacters
 def state_prep_möttönen_dg(self, a, qubits):
     # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit], QuantumRegister]) -> Instruction
     """
@@ -231,5 +234,7 @@ def state_prep_möttönen_dg(self, a, qubits):
     return state_prep_möttönen(self, a, qubits).inverse()
 
 
+# noinspection NonAsciiCharacters
 QuantumCircuit.state_prep_möttönen = state_prep_möttönen
+# noinspection NonAsciiCharacters
 QuantumCircuit.state_prep_möttönen_dg = state_prep_möttönen_dg
