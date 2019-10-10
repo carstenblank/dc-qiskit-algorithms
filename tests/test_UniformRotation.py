@@ -11,19 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
+import logging
 import unittest
 
 import qiskit
 from ddt import ddt, unpack, data
 from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit, execute
-from qiskit.circuit.measure import measure
-from qiskit.extensions.standard import x, h
+import qiskit.extensions
 from qiskit.result import Result
 
-import defaults
-from dc_qiskit_algorithms.UniformRotation import ccx
+import dc_qiskit_algorithms
+
+logging.basicConfig(format=logging.BASIC_FORMAT, level='INFO')
+log = logging.getLogger('test_DraperAdder')
 
 
 @ddt
