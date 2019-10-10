@@ -205,26 +205,32 @@ def pairwise(iterable):
     return zip(a, b)
 
 
-class UniformRotationGate(CompositeGate):
+class UniformRotationGate(Gate):
     """Uniform rotation gate (Möttönen)."""
 
-    def __init__(self, gate, alpha, control_qubits, tgt, circ=None):
-        # type: (Callable[[CompositeGate, float, Tuple[QuantumRegister,int]], InstructionSet], sparse.dok_matrix, List[Tuple[QuantumRegister, int]], Tuple[QuantumRegister, int], Optional[QuantumCircuit]) -> None
+    def __init__(self, gate, alpha):
+        # type: (Callable[[float], Gate], sparse.dok_matrix) -> None
         """
         Create new uniform rotation gate.
-        :param gate: Either a ry or rz gate
+        :param gate: A single qubit rotation gate (typically rx, ry, rz)
         :param alpha: The conditional rotation angles
-        :param control_qubits: control qubits
-        :param tgt: the target qubit to apply the rotations
-        :param circ: a circuit that this gate is being applied on
         """
-        super().__init__("uni_rot_" + str(gate), [], control_qubits + [tgt], circ)
+        number_of_control_qubits = int(np.ceil(np.log2(alpha.shape[0])))
+        super().__init__("uni_rot_" + gate(0).name, num_qubits=number_of_control_qubits + 1, params=[])
+        self.alpha = alpha  # type: sparse.dok_matrix
+        self.gate = gate  # type: Callable[[float], Gate]
 
-        theta = compute_theta(alpha)  # type: sparse.dok_matrix
+    def _define(self):
 
-        gray_code_rank = len(control_qubits)
+        q = QuantumRegister(self.num_qubits, "q")
+        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
+
+        theta = compute_theta(self.alpha)  # type: sparse.dok_matrix
+
+        gray_code_rank = self.num_qubits - 1
         if gray_code_rank == 0:
-            gate(self, theta[0, 0], tgt)
+            rule.append((self.gate(theta[0, 0]), [q[0]], []))
+            self._definition = rule.copy()
             return
 
         from sympy.combinatorics.graycode import GrayCode
@@ -232,14 +238,15 @@ class UniformRotationGate(CompositeGate):
 
         current_gray = gc.current
         for i in range(gc.selections):
-            gate(self, theta[i, 0], tgt)
+            rule.append((self.gate(theta[i, 0]), [q[-1]], []))
             next_gray = gc.next(i + 1).current
 
             control_index = int(np.log2(int(current_gray, 2) ^ int(next_gray, 2)))
-            cx(self, control_qubits[control_index], tgt)
+            rule.append((CnotGate(), [q[control_index], q[-1]], []))
 
             current_gray = next_gray
 
+        self._definition = rule.copy()
 
 def uni_rot(self, gate, alpha, control_qubits, tgt):
     # type: (Union[CompositeGate, QuantumCircuit], Callable[[CompositeGate, float, Tuple[QuantumRegister,int]], InstructionSet], Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Union[Gate, InstructionSet]
