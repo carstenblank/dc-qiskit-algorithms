@@ -46,13 +46,12 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
 
         qc = QuantumCircuit(bus, reg, c_bus, c_reg, name='state prep')
 
-        standard.h(qc, bus)
+        qc.h(bus)
         db.add_to_circuit(qc, bus, reg[0])
 
         local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
 
-        qobj = qiskit.compile([qc], backend=local_backend, shots=1)
-        job = local_backend.run(qobj)  # type: BaseJob
+        job = qiskit.execute(qc, backend=local_backend, shots=1)
         result = job.result()  # type: Result
 
         # State vector
@@ -76,10 +75,8 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         measure(qc, reg, c_reg)
 
         local_qasm_backend = qiskit.Aer.get_backend('qasm_simulator')  # type: BaseBackend
-        from qiskit import compile
         shots = 2**16
-        qobj = compile([qc], backend=local_qasm_backend, shots=shots)
-        job = local_qasm_backend.run(qobj)  # type: BaseJob
+        job = qiskit.execute(qc, backend=local_qasm_backend, shots=shots)
         result = job.result()  # type: Result
         counts = result.get_counts('state prep')
 
