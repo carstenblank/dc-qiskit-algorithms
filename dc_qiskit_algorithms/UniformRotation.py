@@ -121,13 +121,12 @@ ccx_dg
 """
 import logging
 from itertools import tee
-from typing import List, Tuple, Union, Callable, Iterable, Optional
+from typing import List, Tuple, Union, Callable, Iterable
 
 import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.circuit import CompositeGate, InstructionSet, Gate
-from qiskit.circuit.register import Register
-from qiskit.extensions.standard import ry, rz, cx
+from qiskit.circuit import Gate, Instruction, Qubit, Clbit
+from qiskit.extensions import CnotGate, HGate, standard, RZGate, RYGate
 from scipy import sparse
 
 log = logging.getLogger('UniformRotation')
