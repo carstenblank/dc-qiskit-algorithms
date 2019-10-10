@@ -118,7 +118,7 @@ def get_alpha_y(a, n, k):
     for (j, _), e in denominator.items():
         denominator[j, 0] = 1/numpy.sqrt(e)
 
-    pre_alpha= numerator.multiply(denominator)  # type: sparse.csr_matrix
+    pre_alpha = numerator.multiply(denominator)  # type: sparse.csr_matrix
     for (j, _), e in pre_alpha.todok().items():
         alpha[j, 0] = 2*numpy.arcsin(e)
 
