@@ -38,11 +38,11 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         c = ClassicalRegister(4)
         qc = QuantumCircuit(q, c)
 
-        x(qc, q[1])
-        x(qc, q[2])
-        x(qc, q[3])
-        ccx(qc, 7, [q[1], q[2], q[3]], q[0])
-        measure(qc, q, c)
+        qc.x(q[1])
+        qc.x(q[2])
+        qc.x(q[3])
+        qc.ccx_uni_rot(7, [q[1], q[2], q[3]], q[0])
+        qc.measure(q, c)
 
         backend = qiskit.BasicAer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
@@ -57,12 +57,12 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         c = ClassicalRegister(4)
         qc = QuantumCircuit(q, c)
 
-        h(qc, q[0])
-        h(qc, q[2])
+        qc.h(q[0])
+        qc.h(q[2])
         # State now ['0000', '0001', '0100', '0101']
-        ccx(qc, 5, [q[0], q[1], q[2]], q[3])
+        qc.ccx_uni_rot(5, [q[0], q[1], q[2]], q[3])
         # State now ['0000', '0001', '0100', '1101']
-        measure(qc, q, c)
+        qc.measure(q, c)
 
         backend = qiskit.BasicAer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
