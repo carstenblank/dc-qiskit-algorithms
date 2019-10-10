@@ -201,30 +201,25 @@ class MöttönenStatePreparationGate(Gate):
         return rule
 
 def state_prep_möttönen(self, a, qubits):
-    # type: (Union[CompositeGate, QuantumCircuit], Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> Union[Gate, InstructionSet]
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit], QuantumRegister]) -> Instruction
     """
     Convenience function to encapsulate the composite gate of the state preparation
-    :param self: Composite Gate or Quantum circuit to apply this to
+    :param self: Quantum circuit to apply this to
     :param a: the input vector
     :param qubits: the qubits to be transformed
-    :return: gate or instruction set
+    :return: gate just added
     """
     if isinstance(qubits, QuantumRegister):
-        instructions = InstructionSet()
-        qb = [(qubits, j) for j in range(qubits.size)]
-        instructions.add(state_prep_möttönen(self, a, qb))
-        return instructions
+        qubits = list(qubits)
 
-    for qb in qubits:
-        self._check_qubit(qb)
     if isinstance(a, sparse.dok_matrix):
-        return self._attach(MöttönenStatePrep(a, qubits, self))
+        return self.append(MöttönenStatePreparationGate(a), qubits, [])
     else:
-        return self._attach(MöttönenStatePrep(sparse.dok_matrix([a]).transpose(), qubits, self))
+        return self.append(MöttönenStatePreparationGate(sparse.dok_matrix([a]).transpose()), qubits)
 
 
 def state_prep_möttönen_dg(self, a, qubits):
-    # type: (Union[CompositeGate, QuantumCircuit], Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> Union[Gate, InstructionSet]
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit], QuantumRegister]) -> Instruction
     """
         Convenience function to encapsulate the composite gate of the dagger of the state preparation
         :param self: Composite Gate or Quantum circuit to apply this to
@@ -232,10 +227,8 @@ def state_prep_möttönen_dg(self, a, qubits):
         :param qubits: the qubits to be transformed
         :return: gate or instruction set
         """
-    return state_prep_möttönen_dg(self, a, qubits).inverse()
+    return state_prep_möttönen(self, a, qubits).inverse()
 
 
 QuantumCircuit.state_prep_möttönen = state_prep_möttönen
 QuantumCircuit.state_prep_möttönen_dg = state_prep_möttönen_dg
-CompositeGate.state_prep_möttönen = state_prep_möttönen
-CompositeGate.state_prep_möttönen_dg = state_prep_möttönen_dg
