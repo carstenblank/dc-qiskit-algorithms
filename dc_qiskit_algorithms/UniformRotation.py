@@ -428,15 +428,12 @@ def ccx_uni_rot_dg(self, conditional_case, control_qubits, tgt):
 
 QuantumCircuit.uniry = uniry
 QuantumCircuit.uniry_dg = uniry_dg
-CompositeGate.uniry = uniry
-CompositeGate.uniry_dg = uniry_dg
 
 QuantumCircuit.unirz = unirz
 QuantumCircuit.unirz_dg = unirz_dg
-CompositeGate.unirz = unirz
-CompositeGate.unirz_dg = unirz_dg
 
 QuantumCircuit.cnry = cnry
 QuantumCircuit.cnry_dg = cnry_dg
-CompositeGate.cnry = cnry
-CompositeGate.cnry_dg = cnry_dg
+
+QuantumCircuit.ccx_uni_rot = ccx_uni_rot
+QuantumCircuit.ccx_uni_rot_dg = ccx_uni_rot_dg
