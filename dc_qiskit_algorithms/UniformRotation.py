@@ -396,8 +396,8 @@ class MultiControlledXGate(Gate):
         self._definition = rule.copy()
 
 
-def ccx(self, conditional_case, control_qubits, tgt):
-    # type: (Union[CompositeGate, QuantumCircuit], int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Union[Gate, InstructionSet]
+def ccx_uni_rot(self, conditional_case, control_qubits, tgt):
+    # type: (QuantumCircuit, int, Union[List[Qubit], QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply a multi-controlled X gate depending on conditional binary representation
     :param self: either a composite gate or a circuit
@@ -406,24 +406,16 @@ def ccx(self, conditional_case, control_qubits, tgt):
     :param tgt: target
     :return: applied composite gate or circuit
     """
+    if isinstance(tgt, QuantumRegister):
+        tgt = tgt[0]
     if isinstance(control_qubits, QuantumRegister):
-        instructions = InstructionSet()
-        ctrs = [(control_qubits, j) for j in range(control_qubits.size)]
-        if isinstance(tgt, QuantumRegister):
-            for j in range(tgt.size):
-                instructions.add(ccx(self, conditional_case, control_qubits, (tgt, j)))
-        else:
-            instructions.add(ccx(self, conditional_case, control_qubits, tgt))
-        return instructions
+        control_qubits = list(control_qubits)
 
-    self._check_qubit(tgt)
-    for qb in control_qubits:
-        self._check_qubit(qb)
-    return self._attach(MultiControlledXGate(conditional_case, control_qubits, tgt, self))
+    return self.append(MultiControlledXGate(conditional_case, len(control_qubits)), control_qubits + [tgt])
 
 
-def ccx_dg(self, conditional_case, control_qubits, tgt):
-    # type: (Union[CompositeGate, QuantumCircuit], int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Union[Gate, InstructionSet]
+def ccx_uni_rot_dg(self, conditional_case, control_qubits, tgt):
+    # type: (QuantumCircuit, int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
     """
     Apply the dagger (inverse) a multi-controlled X gate depending on conditional binary representation
     :param self: either a composite gate or a circuit
@@ -432,7 +424,7 @@ def ccx_dg(self, conditional_case, control_qubits, tgt):
     :param tgt: target
     :return: applied composite gate or circuit
     """
-    return ccx(self, conditional_case, control_qubits, tgt).inverse()
+    return ccx_uni_rot(self, conditional_case, control_qubits, tgt).inverse()
 
 
 QuantumCircuit.uniry = uniry
