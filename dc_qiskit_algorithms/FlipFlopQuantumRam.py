@@ -48,11 +48,11 @@ add_vector
 """
 
 import math
-from typing import Tuple, List, Union
+from typing import List, Union
 
 from bitarray import bitarray
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.circuit.register import Register
+from qiskit.circuit import Qubit
 from qiskit.extensions.standard.x import x
 
 from .UniformRotation import cnry
@@ -96,7 +96,7 @@ class FFQramEntry(object):
         return self.get_bits().length()
 
     def add_to_circuit(self, qc, bus, register):
-        # type: (FFQramEntry, QuantumCircuit, Union[QuantumRegister, list], Tuple[QuantumRegister, int]) -> QuantumCircuit
+        # type: (FFQramEntry, QuantumCircuit, Union[QuantumRegister, list], Qubit) -> QuantumCircuit
         """
         This method adds the gates to encode this entry into the circuit
         :param qc: quantum circuit to apply the entry to
@@ -107,9 +107,9 @@ class FFQramEntry(object):
         theta = math.asin(self.probability_amplitude)
         if theta == 0:
             return qc
-        bus_register = []  # type: List[Tuple[QuantumRegister, int]]
+        bus_register = []  # type: List[Qubit]
         if isinstance(bus, QuantumRegister):
-            bus_register = [(bus, i) for i in range(bus.size)]
+            bus_register = list(bus)
         else:
             bus_register = bus
 
@@ -158,7 +158,7 @@ class FFQramDb(List[FFQramEntry]):
         return max([e.bus_size() for e in self])
 
     def add_to_circuit(self, qc, bus, register):
-        # type: (FFQramDb, QuantumCircuit, Union[QuantumRegister, list], Tuple[Union[QuantumRegister, Register], int]) -> None
+        # type: (FFQramDb, QuantumCircuit, Union[QuantumRegister, List[Qubit]], Qubit) -> None
         """
         Add the DB to the circuit.
 
@@ -167,11 +167,8 @@ class FFQramDb(List[FFQramEntry]):
         :param register: the target register for the amplitudes
         :return: the circuit after DB being applied
         """
-        if not isinstance(register[0], QuantumRegister):
-            raise Exception("Register must be a QuantumRegister!")  # type: Tuple[QuantumRegister, int]
-        reg = (register[0], register[1])
         for entry in self:
-            entry.add_to_circuit(qc, bus, reg)
+            entry.add_to_circuit(qc, bus, register)
 
     def add_entry(self, pa, data, label):
         # type: (FFQramDb, float, bytes, bytes) -> None
