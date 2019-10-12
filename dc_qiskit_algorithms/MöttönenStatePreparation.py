@@ -126,6 +126,18 @@ def get_alpha_y(a, n, k):
     return alpha
 
 
+class RZGateNegatedAngle(RZGate):
+
+    def __init__(self, phi):
+        super().__init__(-phi)
+
+
+class RYGateNegatedAngle(RYGate):
+
+    def __init__(self, phi):
+        super().__init__(-phi)
+
+
 # noinspection NonAsciiCharacters
 class MöttönenStatePreparationGate(Gate):
     """Uniform rotation Y gate (Möttönen)."""
@@ -171,17 +183,13 @@ class MöttönenStatePreparationGate(Gate):
         :param qubits: qubits to which the scheme are applied
         :return: None
         """
-
-        def rotation_gate(theta):
-            return RYGate(-theta)
-
         rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
         num_qubits = int(math.log2(a.shape[0]))
         for k in range(1, num_qubits + 1):
             alpha_y_k = get_alpha_y(a, num_qubits, k)  # type: sparse.dok_matrix
             control = qubits[k:]
             target = qubits[k - 1]
-            rule.append((UniformRotationGate(gate=rotation_gate, alpha=alpha_y_k), control + [target], []))
+            rule.append((UniformRotationGate(gate=RYGateNegatedAngle, alpha=alpha_y_k), control + [target], []))
 
         return rule
 
@@ -194,10 +202,6 @@ class MöttönenStatePreparationGate(Gate):
         :param qubits: qubits to which the scheme are applied
         :return: None
         """
-
-        def rotation_gate(theta):
-            return RZGate(-theta)
-
         rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
         num_qubits = int(math.log2(omega.shape[0]))
         for k in range(1, num_qubits + 1):
@@ -205,7 +209,7 @@ class MöttönenStatePreparationGate(Gate):
             control = qubits[k:]
             target = qubits[k - 1]
             # if len(alpha_z_k) != 0:
-            rule.append((UniformRotationGate(gate=rotation_gate, alpha=alpha_z_k), control + [target], []))
+            rule.append((UniformRotationGate(gate=RZGateNegatedAngle, alpha=alpha_z_k), control + [target], []))
 
         return rule
 
