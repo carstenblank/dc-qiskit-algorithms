@@ -53,7 +53,7 @@ from typing import Tuple, List, Union
 from bitarray import bitarray
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit.register import Register
-from qiskit.extensions.standard import x
+from qiskit.extensions.standard.x import x
 
 from .UniformRotation import cnry
 

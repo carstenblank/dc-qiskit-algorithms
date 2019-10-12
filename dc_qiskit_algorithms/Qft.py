@@ -50,6 +50,8 @@ from typing import Tuple, List, Union
 
 import qiskit.extensions.standard as standard
 from qiskit import QuantumRegister, QuantumCircuit
+from qiskit.circuit import Gate, Instruction
+from qiskit.extensions import HGate, Cu1Gate
 
 
 def get_theta(k):
@@ -65,42 +67,48 @@ def get_theta(k):
     return lam
 
 
-def qft(qc, q):
-    # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> QuantumCircuit
+class QuantumFourierTransformGate(Gate):
+
+    def __init__(self, num_qubits):
+        super().__init__("qft", num_qubits=num_qubits, params=[])
+
+    def _define(self):
+        rule = []  # type: List[Tuple[Gate, list, list]]
+        qreg = QuantumRegister(self.num_qubits, "qreg")
+        q_list = list(qreg)
+
+        unused = q_list.copy()
+        for qr in q_list:
+            rule.append((HGate(), [qr], []))
+            k = 2
+            unused.remove(qr)
+            for qj in reversed(unused):
+                rule.append((Cu1Gate(get_theta(k)), [qj, qr], []))
+                k = k + 1
+
+        self.definition = rule.copy()
+
+    def inverse(self):
+        return super().inverse()
+
+
+def qft(self, q):
+    # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> Instruction
     """
     Applies the Quantum Fourier Transform to q
-    :param qc: the circuit to which the qft is applied
+    :param self: the circuit to which the qft is applied
     :param q: the quantum register or list of quantum register/index tuples
     :return: the circuit with applied qft
     """
-    q_list = []  # type: List[Tuple[QuantumRegister, int]]
-    if isinstance(q, QuantumRegister):
-        q_list = [q[i] for i in range(q.size)]
-    else:
-        q_list = q
-
-    unused = q_list.copy()
-    for qr in q_list:
-        standard.h(qc, qr)
-        k = 2
-        unused.remove(qr)
-        for qj in reversed(unused):
-            standard.cu1(qc, get_theta(k), qj, qr)
-            k = k + 1
-    return qc
+    return self.append(QuantumFourierTransformGate(len(q)), [q])
 
 
-def qft_dg(qc, q):
-    # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> QuantumCircuit
+def qft_dg(self, q):
+    # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> Instruction
     """
         Applies the inverse Quantum Fourier Transform to q
-        :param qc: the circuit to which the qft_dag is applied
+        :param self: the circuit to which the qft_dag is applied
         :param q: the quantum register or list of quantum register/index tuples
         :return: the circuit with applied qft_dag
         """
-    qc2 = QuantumCircuit(*qc.qregs, *qc.cregs)
-    qft(qc2, q)
-    new_data = [op.inverse() for op in reversed(qc2.data)]
-    qc2.data = new_data
-    qc.extend(qc2)
-    return qc
+    return qft(self, q).inverse()

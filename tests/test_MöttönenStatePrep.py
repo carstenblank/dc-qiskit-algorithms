@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
+import logging
 import unittest
 from typing import List
 
@@ -24,8 +23,10 @@ from qiskit.circuit.measure import measure
 from qiskit.providers import BaseBackend, BaseJob
 from qiskit.result import Result
 
-import defaults
-from dc_qiskit_algorithms.MöttönenStatePrep import state_prep_möttönen
+import dc_qiskit_algorithms.MöttönenStatePreparation
+
+logging.basicConfig(format=logging.BASIC_FORMAT, level='INFO')
+log = logging.getLogger('test_DraperAdder')
 
 
 # noinspection NonAsciiCharacters
@@ -39,12 +40,11 @@ class MöttönenStatePrepTests(unittest.TestCase):
         reg = QuantumRegister(qubits, "reg")
         c = ClassicalRegister(qubits, "c")
         qc = QuantumCircuit(reg, c, name='state prep')
-        state_prep_möttönen(qc, vector, reg)
+        qc.state_prep_möttönen(vector, reg)
 
-        local_backend = qiskit.BasicAer.get_backend('statevector_simulator')  # type: BaseBackend
+        local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
 
-        qobj = qiskit.compile([qc], backend=local_backend, shots=1)
-        job = local_backend.run(qobj)  # type: BaseJob
+        job = qiskit.execute(qc, backend=local_backend, shots=1)  # type: BaseJob
         result = job.result()  # type: Result
 
         # State vector
@@ -65,11 +65,9 @@ class MöttönenStatePrepTests(unittest.TestCase):
 
         # Probability Vector by Measurement
         measure(qc, reg, c)
-        local_qasm_backend = qiskit.BasicAer.get_backend('qasm_simulator')  # type: BaseBackend
-        from qiskit import compile
+        local_qasm_backend = qiskit.Aer.get_backend('qasm_simulator')  # type: BaseBackend
         shots = 2**12
-        qobj = compile([qc], backend=local_qasm_backend, shots=shots)
-        job = local_qasm_backend.run(qobj)  # type: BaseJob
+        job = qiskit.execute(qc, backend=local_qasm_backend, shots=shots)  # type: BaseJob
         result = job.result()  # type: Result
         counts = result.get_counts('state prep')
         measurement_probability_vector = [0.0 for e in result_state_vector]

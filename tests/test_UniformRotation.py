@@ -11,19 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
+import logging
 import unittest
 
 import qiskit
 from ddt import ddt, unpack, data
 from qiskit import QuantumRegister, ClassicalRegister, QuantumCircuit, execute
-from qiskit.circuit.measure import measure
-from qiskit.extensions.standard import x, h
+import qiskit.extensions
 from qiskit.result import Result
 
-import defaults
-from dc_qiskit_algorithms.UniformRotation import ccx
+import dc_qiskit_algorithms
+
+logging.basicConfig(format=logging.BASIC_FORMAT, level='INFO')
+log = logging.getLogger('test_DraperAdder')
 
 
 @ddt
@@ -38,17 +38,18 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         c = ClassicalRegister(4)
         qc = QuantumCircuit(q, c)
 
-        x(qc, q[1])
-        x(qc, q[2])
-        x(qc, q[3])
-        ccx(qc, 7, [q[1], q[2], q[3]], q[0])
-        measure(qc, q, c)
+        qc.x(q[1])
+        qc.x(q[2])
+        qc.x(q[3])
+        qc.ccx_uni_rot(7, [q[1], q[2], q[3]], q[0])
+        qc.measure(q, c)
 
         backend = qiskit.BasicAer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
         sim_result = job_sim.result()  # type: Result
 
         counts = sim_result.get_counts(qc)  # type: dict
+        log.info(counts)
         self.assertIsNotNone(counts.keys())
         self.assertListEqual(list(counts.keys()), ['1111'])
 
@@ -57,18 +58,19 @@ class MultipleControlledNotGateTest(unittest.TestCase):
         c = ClassicalRegister(4)
         qc = QuantumCircuit(q, c)
 
-        h(qc, q[0])
-        h(qc, q[2])
+        qc.h(q[0])
+        qc.h(q[2])
         # State now ['0000', '0001', '0100', '0101']
-        ccx(qc, 5, [q[0], q[1], q[2]], q[3])
+        qc.ccx_uni_rot(5, [q[0], q[1], q[2]], q[3])
         # State now ['0000', '0001', '0100', '1101']
-        measure(qc, q, c)
+        qc.measure(q, c)
 
         backend = qiskit.BasicAer.get_backend('qasm_simulator')
         job_sim = execute(qc, backend, shots=10000)
         sim_result = job_sim.result()  # type: Result
 
         counts = sim_result.get_counts(qc)  # type: dict
+        log.info(counts)
         self.assertIsNotNone(counts.keys())
         self.assertListEqual(list(sorted(counts.keys())), ['0000', '0001', '0100', '1101'])
 
