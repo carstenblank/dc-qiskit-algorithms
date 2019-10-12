@@ -296,8 +296,10 @@ def unirz(self, alpha, control_qubits, tgt):
     :param tgt: target
     :return: applied composite gate or circuit
     """
+    def rotation_gate(theta):
+        return RZGate(theta)
 
-    return uni_rot(self, lambda theta: RZGate(theta), alpha, control_qubits, tgt)
+    return uni_rot(self, rotation_gate, alpha, control_qubits, tgt)
 
 
 def unirz_dg(self, alpha, control_qubits, tgt):
@@ -323,8 +325,10 @@ def uniry(self, alpha, control_qubits, tgt):
     :param tgt: target
     :return: applied composite gate or circuit
     """
+    def rotation_gate(theta):
+        return RYGate(theta)
 
-    return uni_rot(self, lambda theta: RYGate(theta), alpha, control_qubits, tgt)
+    return uni_rot(self, rotation_gate, alpha, control_qubits, tgt)
 
 
 def uniry_dg(self, alpha, control_qubits, tgt):
