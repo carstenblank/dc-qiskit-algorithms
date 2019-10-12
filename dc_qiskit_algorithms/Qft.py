@@ -48,9 +48,8 @@ qft_dg
 import math
 from typing import Tuple, List, Union
 
-import qiskit.extensions.standard as standard
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.circuit import Gate, Instruction
+from qiskit.circuit import Gate, Instruction, Qubit, Clbit
 from qiskit.extensions import HGate, Cu1Gate
 
 
@@ -73,7 +72,7 @@ class QuantumFourierTransformGate(Gate):
         super().__init__("qft", num_qubits=num_qubits, params=[])
 
     def _define(self):
-        rule = []  # type: List[Tuple[Gate, list, list]]
+        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
         qreg = QuantumRegister(self.num_qubits, "qreg")
         q_list = list(qreg)
 
@@ -93,7 +92,7 @@ class QuantumFourierTransformGate(Gate):
 
 
 def qft(self, q):
-    # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[Qubit], QuantumRegister]) -> Instruction
     """
     Applies the Quantum Fourier Transform to q
     :param self: the circuit to which the qft is applied
@@ -104,7 +103,7 @@ def qft(self, q):
 
 
 def qft_dg(self, q):
-    # type: (QuantumCircuit, Union[List[Tuple[QuantumRegister, int]], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[Qubit], QuantumRegister]) -> Instruction
     """
         Applies the inverse Quantum Fourier Transform to q
         :param self: the circuit to which the qft_dag is applied

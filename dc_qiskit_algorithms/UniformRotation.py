@@ -273,7 +273,7 @@ def uni_rot(self, rotation_gate, alpha, control_qubits, tgt):
 
 
 def uni_rot_dg(self, rotation_gate, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Callable[[float], Gate], Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Callable[[float], Gate], Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply the dagger (inverse) of a generic uniform rotation with rotation gate.
     :param self: either a composite gate or a circuit
@@ -287,7 +287,7 @@ def uni_rot_dg(self, rotation_gate, alpha, control_qubits, tgt):
 
 
 def unirz(self, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply a uniform rotation around z.
     :param self: either a composite gate or a circuit
@@ -301,7 +301,7 @@ def unirz(self, alpha, control_qubits, tgt):
 
 
 def unirz_dg(self, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply dagger (inverse) of a uniform rotation around z.
     :param self: either a composite gate or a circuit
@@ -314,7 +314,7 @@ def unirz_dg(self, alpha, control_qubits, tgt):
 
 
 def uniry(self, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply a uniform rotation around y.
     :param self: either a composite gate or a circuit
@@ -328,7 +328,7 @@ def uniry(self, alpha, control_qubits, tgt):
 
 
 def uniry_dg(self, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply the dagger (inverse) of a uniform rotation around y.
     :param self: either a composite gate or a circuit
@@ -341,7 +341,7 @@ def uniry_dg(self, alpha, control_qubits, tgt):
 
 
 def cnry(self, theta, control_qubits, tgt):
-    # type: (QuantumCircuit, float, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, float, Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply a multiple controlled y rotation on the target qubit.
     :param self: either a composite gate or a circuit
@@ -357,7 +357,7 @@ def cnry(self, theta, control_qubits, tgt):
 
 
 def cnry_dg(self, theta, control_qubits, tgt):
-    # type: (QuantumCircuit, float, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, float, Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply the dagger (inverse) of a multiple controlled y rotation on the target qubit.
     :param self: either a composite gate or a circuit
@@ -416,7 +416,7 @@ def ccx_uni_rot(self, conditional_case, control_qubits, tgt):
 
 
 def ccx_uni_rot_dg(self, conditional_case, control_qubits, tgt):
-    # type: (QuantumCircuit, int, Union[List[Tuple[QuantumRegister, int]],QuantumRegister], Union[Tuple[QuantumRegister, int], QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, int, Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
     """
     Apply the dagger (inverse) a multi-controlled X gate depending on conditional binary representation
     :param self: either a composite gate or a circuit
