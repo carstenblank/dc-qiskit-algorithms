@@ -98,6 +98,10 @@ class MöttönenStatePrepTests(unittest.TestCase):
         vector = (1 / numpy.linalg.norm(vector)) * vector
         self.execute_test(list(vector))
 
+    def test_instantiation(self):
+        gate = dc_qiskit_algorithms.MöttönenStatePreparationGate([1.0, 0.0])
+        self.assertIsInstance(gate, dc_qiskit_algorithms.MöttönenStatePreparationGate)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -143,12 +143,14 @@ class MöttönenStatePreparationGate(Gate):
     """Uniform rotation Y gate (Möttönen)."""
 
     def __init__(self, vector):
-        # type: (sparse.dok_matrix) -> None
+        # type: (Union[sparse.dok_matrix, List[complex], List[float]]) -> None
         """
         Create the composite gate for the Möttönen state preparation scheme with an input vector, which registers/qubits
         to apply it to, and the circuit (if any)
         :param vector: the input complex sparse vector
         """
+        if isinstance(vector, list):
+            vector = sparse.dok_matrix([vector]).transpose()
         num_qubits = int(math.log2(vector.shape[0]))
         super().__init__("state_prep_möttönen", num_qubits=num_qubits, params=[])
         self.vector = vector  # type: sparse.dok_matrix
