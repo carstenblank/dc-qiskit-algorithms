@@ -34,10 +34,9 @@ draper_adder
 """
 from typing import Optional, Tuple, List, Union
 
-import qiskit
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Instruction, Qubit
-from qiskit.extensions import XGate, Cu1Gate
+from qiskit.extensions import XGate, CU1Gate
 
 from dc_qiskit_algorithms.Qft import QuantumFourierTransformGate
 from . import Qft as qft
@@ -84,7 +83,7 @@ class DraperAdderGate(Gate):
         for b_index in reversed(range(len(b))):
             theta_index = 1
             for a_index in reversed(range(b_index + 1)):
-                rule.append((Cu1Gate(qft.get_theta(theta_index)), [b[b_index], a[a_index]], []))
+                rule.append((CU1Gate(qft.get_theta(theta_index)), [b[b_index], a[a_index]], []))
                 theta_index += 1
 
         rule.append((QuantumFourierTransformGate(len(a)).inverse(), a, []))
