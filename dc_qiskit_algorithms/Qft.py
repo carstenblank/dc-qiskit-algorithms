@@ -50,7 +50,7 @@ from typing import Tuple, List, Union
 
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Gate, Instruction, Qubit, Clbit
-from qiskit.extensions import HGate, Cu1Gate
+from qiskit.extensions import HGate, CU1Gate
 
 
 def get_theta(k):
@@ -81,8 +81,8 @@ class QuantumFourierTransformGate(Gate):
             rule.append((HGate(), [qr], []))
             k = 2
             unused.remove(qr)
-            for qj in reversed(unused):
-                rule.append((Cu1Gate(get_theta(k)), [qj, qr], []))
+            for qj in unused:
+                rule.append((CU1Gate(get_theta(k)), [qj, qr], []))
                 k = k + 1
 
         self.definition = rule.copy()

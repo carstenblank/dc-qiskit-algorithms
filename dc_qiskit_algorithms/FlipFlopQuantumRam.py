@@ -53,7 +53,6 @@ from typing import List, Union
 from bitarray import bitarray
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Qubit
-from qiskit.extensions.standard.x import x
 
 from .UniformRotation import cnry
 
@@ -118,12 +117,12 @@ class FFQramEntry(object):
             ba.append(False)
 
         for i, b in enumerate(ba):
-            if not b: x(qc, bus_register[i])
+            if not b: qc.x(bus_register[i])
 
         cnry(qc, theta, bus_register, register)
 
         for i, b in enumerate(ba):
-            if not b: x(qc, bus_register[i])
+            if not b: qc.x(bus_register[i])
 
         return qc
 
