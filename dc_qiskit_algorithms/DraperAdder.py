@@ -66,6 +66,7 @@ class DraperAdderGate(Gate):
         rule = []  # type: List[Tuple[Gate, list, list]]
 
         q = QuantumRegister(len(self.a_01s) + len(self.b_01s), "q")
+        qc = QuantumCircuit(q, name=self.name)
 
         a = q[0:len(self.a_01s)]
         b = q[len(self.a_01s):]
@@ -88,7 +89,8 @@ class DraperAdderGate(Gate):
 
         rule.append((QuantumFourierTransformGate(len(a)).inverse(), a, []))
 
-        self._definition = rule.copy()
+        qc._data = rule.copy()
+        self.definition = qc
 
     def inverse(self):
         return super().inverse()
