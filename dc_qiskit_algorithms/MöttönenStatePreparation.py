@@ -163,18 +163,17 @@ class MöttönenStatePreparationGate(Gate):
             a[i, j] = numpy.absolute(v)
             omega[i, j] = numpy.angle(v)
 
-        qubits = list(QuantumRegister(self.num_qubits, "qubits"))  # type: List[Qubit]
+        q = QuantumRegister(self.num_qubits, "qubits")
+        qc = QuantumCircuit(q, name=self.name)
+        qubits = list(q)  # type: List[Qubit]
 
         rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
 
         rule.extend(self.apply_rot_z(omega, qubits))
         rule.extend(self.apply_rot_y(a, qubits))
 
-        inverse_rule = []
-        for inst, qargs, cargs in reversed(rule):
-            inverse_rule.append((inst.inverse(), qargs, cargs))
-
-        self._definition = inverse_rule
+        qc._data = rule.copy()
+        self.definition = qc.inverse()
 
     @staticmethod
     def apply_rot_y(a, qubits):
