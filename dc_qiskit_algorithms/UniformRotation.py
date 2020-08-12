@@ -126,7 +126,7 @@ from typing import List, Tuple, Union, Callable, Iterable
 import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Gate, Instruction, Qubit, Clbit
-from qiskit.extensions import CnotGate, HGate, standard, RZGate, RYGate
+from qiskit.extensions import HGate, RZGate, RYGate, CXGate
 from scipy import sparse
 
 log = logging.getLogger('UniformRotation')
@@ -224,6 +224,7 @@ class UniformRotationGate(Gate):
     def _define(self):
 
         q = QuantumRegister(self.num_qubits, "q")
+        qc = QuantumCircuit(q, name=self.name)
         rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
 
         theta = compute_theta(self.alpha)  # type: sparse.dok_matrix
@@ -231,23 +232,22 @@ class UniformRotationGate(Gate):
         gray_code_rank = self.num_qubits - 1
         if gray_code_rank == 0:
             rule.append((self.gate(theta[0, 0]), [q[0]], []))
-            self._definition = rule.copy()
-            return
+        else:
+            from sympy.combinatorics.graycode import GrayCode
+            gc = GrayCode(gray_code_rank)  # type: GrayCode
 
-        from sympy.combinatorics.graycode import GrayCode
-        gc = GrayCode(gray_code_rank)  # type: GrayCode
+            current_gray = gc.current
+            for i in range(gc.selections):
+                rule.append((self.gate(theta[i, 0]), [q[-1]], []))
+                next_gray = gc.next(i + 1).current
 
-        current_gray = gc.current
-        for i in range(gc.selections):
-            rule.append((self.gate(theta[i, 0]), [q[-1]], []))
-            next_gray = gc.next(i + 1).current
+                control_index = int(np.log2(int(current_gray, 2) ^ int(next_gray, 2)))
+                rule.append((CXGate(), [q[control_index], q[-1]], []))
+    
+                current_gray = next_gray
 
-            control_index = int(np.log2(int(current_gray, 2) ^ int(next_gray, 2)))
-            rule.append((CnotGate(), [q[control_index], q[-1]], []))
-
-            current_gray = next_gray
-
-        self._definition = rule.copy()
+        qc._data = rule.copy()
+        self.definition = qc
 
 
 def uni_rot(self, rotation_gate, alpha, control_qubits, tgt):
@@ -383,16 +383,18 @@ class MultiControlledXGate(Gate):
 
     def _define(self):
         q = QuantumRegister(self.num_qubits, "q")
+        qc = QuantumCircuit(q, name=self.name)
         rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
 
         length = 2 ** self.control_qubits
         alpha = sparse.dok_matrix((length, 1), dtype=np.float64)
         alpha[self.conditional_case] = np.pi
         rule.append((HGate(), [q[-1]], []))
-        rule.append((UniformRotationGate(standard.RYGate, alpha), list(q), []))
+        rule.append((UniformRotationGate(RYGate, alpha), list(q), []))
         rule.append((HGate(), [q[-1]], []))
 
-        self._definition = rule.copy()
+        qc._data = rule.copy()
+        self.definition = qc
 
 
 def ccx_uni_rot(self, conditional_case, control_qubits, tgt):
