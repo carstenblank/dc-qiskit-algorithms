@@ -1,5 +1,5 @@
 setuptools
-qiskit
+qiskit<0.20.0
 numpy
 scipy
 bitstring
