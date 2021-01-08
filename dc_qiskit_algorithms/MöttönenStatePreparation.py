@@ -183,7 +183,7 @@ class MöttönenStatePreparationGate(Gate):
         :param qreg: quantum register to which the scheme are applied
         :return: None
         """
-        qc: QuantumCircuit = QuantumCircuit(qreg, name='apply_rot_y')
+        qc = QuantumCircuit(qreg, name='apply_rot_y')  # type: QuantumCircuit
         num_qubits = int(math.log2(a.shape[0]))
         for k in range(1, num_qubits + 1):
             alpha_y_k = get_alpha_y(a, num_qubits, k)  # type: sparse.dok_matrix
@@ -202,7 +202,7 @@ class MöttönenStatePreparationGate(Gate):
         :param qreg: quantum register to which the scheme are applied
         :return: None
         """
-        qc: QuantumCircuit = QuantumCircuit(qreg, name='apply_rot_z')
+        qc = QuantumCircuit(qreg, name='apply_rot_z')  # type: QuantumCircuit
         num_qubits = int(math.log2(omega.shape[0]))
         for k in range(1, num_qubits + 1):
             alpha_z_k = get_alpha_z(omega, num_qubits, k)
