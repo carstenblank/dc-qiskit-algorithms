@@ -225,29 +225,27 @@ class UniformRotationGate(Gate):
 
         q = QuantumRegister(self.num_qubits, "q")
         qc = QuantumCircuit(q, name=self.name)
-        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
 
         theta = compute_theta(self.alpha)  # type: sparse.dok_matrix
 
         gray_code_rank = self.num_qubits - 1
         if gray_code_rank == 0:
-            rule.append((self.gate(theta[0, 0]), [q[0]], []))
+            qc.append(self.gate(theta[0, 0]), [q[0]], [])
         else:
             from sympy.combinatorics.graycode import GrayCode
             gc = GrayCode(gray_code_rank)  # type: GrayCode
 
             current_gray = gc.current
             for i in range(gc.selections):
-                rule.append((self.gate(theta[i, 0]), [q[-1]], []))
+                qc.append(self.gate(theta[i, 0]), [q[-1]], [])
                 next_gray = gc.next(i + 1).current
 
                 control_index = int(np.log2(int(current_gray, 2) ^ int(next_gray, 2)))
-                rule.append((CXGate(), [q[control_index], q[-1]], []))
-    
+                qc.append(CXGate(), [q[control_index], q[-1]], [])
+
                 current_gray = next_gray
 
-        qc._data = rule.copy()
-        self.definition = qc
+        self._definition = qc
 
 
 def uni_rot(self, rotation_gate, alpha, control_qubits, tgt):
