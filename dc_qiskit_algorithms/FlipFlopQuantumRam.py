@@ -211,10 +211,4 @@ def add_vector(db, vec):
     for i, v in enumerate(unit_vector):
         if abs(v) > 1e-6:
             label_as_bytes = (i).to_bytes(number_of_bytes, byteorder='big')
-            label_check = int.from_bytes(label_as_bytes, byteorder='big')
-
-            from bitstring import BitArray
-            ba = BitArray(label_as_bytes)
-
             db.add_entry(v, b'', label_as_bytes)
-
