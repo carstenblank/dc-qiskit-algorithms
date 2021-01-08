@@ -61,7 +61,7 @@ MöttönenStatePrep
 import math
 from typing import List, Tuple, Union
 
-import numpy
+import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Gate, Instruction, Qubit, Clbit
 from qiskit.extensions import RYGate, RZGate
@@ -79,11 +79,11 @@ def get_alpha_z(omega, n, k):
     :param k: current qubit
     :return: a sparse vector
     """
-    alpha_z_k = sparse.dok_matrix((2 ** (n - k), 1), dtype=numpy.float64)
+    alpha_z_k = sparse.dok_matrix((2 ** (n - k), 1), dtype=np.float64)
 
     for (i, _), om in omega.items():
         i += 1
-        j = int(numpy.ceil(i * 2 ** (-k)))
+        j = int(np.ceil(i * 2 ** (-k)))
         s_condition = 2 ** (k - 1) * (2 * j - 1)
         s_i = 1.0 if i > s_condition else -1.0
         alpha_z_k[j - 1, 0] = alpha_z_k[j - 1, 0] + s_i * om / 2 ** (k - 1)
@@ -100,10 +100,10 @@ def get_alpha_y(a, n, k):
     :param k: current qubit
     :return: a sparse vector
     """
-    alpha = sparse.dok_matrix((2**(n - k), 1), dtype=numpy.float64)
+    alpha = sparse.dok_matrix((2**(n - k), 1), dtype=np.float64)
 
-    numerator = sparse.dok_matrix((2 ** (n - k), 1), dtype=numpy.float64)
-    denominator = sparse.dok_matrix((2 ** (n - k), 1), dtype=numpy.float64)
+    numerator = sparse.dok_matrix((2 ** (n - k), 1), dtype=np.float64)
+    denominator = sparse.dok_matrix((2 ** (n - k), 1), dtype=np.float64)
 
     for (i, _), e in a.items():
         j = int(math.ceil((i + 1) / 2**k))
@@ -115,13 +115,13 @@ def get_alpha_y(a, n, k):
         denominator[j - 1, 0] += e*e
 
     for (j, _), e in numerator.items():
-        numerator[j, 0] = numpy.sqrt(e)
+        numerator[j, 0] = np.sqrt(e)
     for (j, _), e in denominator.items():
-        denominator[j, 0] = 1/numpy.sqrt(e)
+        denominator[j, 0] = 1/np.sqrt(e)
 
     pre_alpha = numerator.multiply(denominator)  # type: sparse.csr_matrix
     for (j, _), e in pre_alpha.todok().items():
-        alpha[j, 0] = 2*numpy.arcsin(e)
+        alpha[j, 0] = 2*np.arcsin(e)
 
     return alpha
 
@@ -160,59 +160,58 @@ class MöttönenStatePreparationGate(Gate):
         omega = sparse.dok_matrix(self.vector.get_shape())  # type: sparse.dok_matrix
 
         for (i, j), v in self.vector.items():
-            a[i, j] = numpy.absolute(v)
-            omega[i, j] = numpy.angle(v)
+            a[i, j] = np.absolute(v)
+            omega[i, j] = np.angle(v)
 
         q = QuantumRegister(self.num_qubits, "qubits")
         qc = QuantumCircuit(q, name=self.name)
-        qubits = list(q)  # type: List[Qubit]
 
-        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
+        qc_rot_z = self.apply_rot_z(omega, q)
+        qc_rot_y = self.apply_rot_y(a, q)
 
-        rule.extend(self.apply_rot_z(omega, qubits))
-        rule.extend(self.apply_rot_y(a, qubits))
+        qc = qc.combine(qc_rot_z)
+        qc = qc.combine(qc_rot_y)
 
-        qc._data = rule.copy()
-        self.definition = qc.inverse()
+        self._definition = qc.inverse()
 
     @staticmethod
-    def apply_rot_y(a, qubits):
-        # type: (sparse.dok_matrix, List[Qubit]) -> List[Tuple[Gate, List[Qubit], List[Clbit]]]
+    def apply_rot_y(a, qreg):
+        # type: (sparse.dok_matrix, QuantumRegister) -> QuantumCircuit
         """
         Applies the cascade of y-uniform rotations to the qubits
         :param a: the sparse absolute value vector
-        :param qubits: qubits to which the scheme are applied
+        :param qreg: quantum register to which the scheme are applied
         :return: None
         """
-        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
+        qc = QuantumCircuit(qreg, name='apply_rot_y')  # type: QuantumCircuit
         num_qubits = int(math.log2(a.shape[0]))
         for k in range(1, num_qubits + 1):
             alpha_y_k = get_alpha_y(a, num_qubits, k)  # type: sparse.dok_matrix
-            control = qubits[k:]
-            target = qubits[k - 1]
-            rule.append((UniformRotationGate(gate=RYGateNegatedAngle, alpha=alpha_y_k), control + [target], []))
+            control = qreg[k:]
+            target = qreg[k - 1]
+            qc.append(UniformRotationGate(gate=RYGateNegatedAngle, alpha=alpha_y_k), control + [target], [])
 
-        return rule
+        return qc
 
     @staticmethod
-    def apply_rot_z(omega, qubits):
-        # type: (sparse.dok_matrix, List[Qubit]) -> List[Tuple[Gate, List[Qubit], List[Clbit]]]
+    def apply_rot_z(omega, qreg):
+        # type: (sparse.dok_matrix, QuantumRegister) -> QuantumCircuit
         """
         Applies the cascade of z-uniform rotations to the qubits
         :param omega: the sparse phase vector
-        :param qubits: qubits to which the scheme are applied
+        :param qreg: quantum register to which the scheme are applied
         :return: None
         """
-        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
+        qc = QuantumCircuit(qreg, name='apply_rot_z')  # type: QuantumCircuit
         num_qubits = int(math.log2(omega.shape[0]))
         for k in range(1, num_qubits + 1):
             alpha_z_k = get_alpha_z(omega, num_qubits, k)
-            control = qubits[k:]
-            target = qubits[k - 1]
+            control = qreg[k:]
+            target = qreg[k - 1]
             # if len(alpha_z_k) != 0:
-            rule.append((UniformRotationGate(gate=RZGateNegatedAngle, alpha=alpha_z_k), control + [target], []))
+            qc.append(UniformRotationGate(gate=RZGateNegatedAngle, alpha=alpha_z_k), control + [target], [])
 
-        return rule
+        return qc
 
 
 # noinspection NonAsciiCharacters

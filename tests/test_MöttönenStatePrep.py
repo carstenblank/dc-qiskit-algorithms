@@ -15,7 +15,7 @@ import logging
 import unittest
 from typing import List
 
-import numpy
+import numpy as np
 import qiskit
 from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
 from ddt import ddt, data as test_data, unpack
@@ -34,9 +34,9 @@ log = logging.getLogger('test_DraperAdder')
 class MöttönenStatePrepTests(unittest.TestCase):
 
     def execute_test(self, vector: List[float]):
-        probability_vector = [numpy.absolute(e)**2 for e in vector]
+        probability_vector = [np.absolute(e)**2 for e in vector]
 
-        qubits = int(numpy.log2(len(vector)))
+        qubits = int(np.log2(len(vector)))
         reg = QuantumRegister(qubits, "reg")
         c = ClassicalRegister(qubits, "c")
         qc = QuantumCircuit(reg, c, name='state prep')
@@ -50,15 +50,17 @@ class MöttönenStatePrepTests(unittest.TestCase):
         # State vector
         result_state_vector = result.get_statevector('state prep')
         print(["{0:.2f}".format(e) for e in result_state_vector])
-        sign = 1.0
-        if abs(vector[0] - result_state_vector[0].real) > 1e-6:
-            sign = -1.0
+        # Try to find a global phase
+        global_phase = set([np.angle(v) - np.angle(rv) for v, rv in zip(vector, result_state_vector)
+                            if abs(v) > 1e-3 and abs(rv) > 1e-3])
+        global_phase = global_phase.pop() or 0.0
+        result_state_vector = np.exp(1.0j * global_phase) * result_state_vector
         for expected, actual in zip(vector, result_state_vector):
             self.assertAlmostEqual(actual.imag, 0.0, places=6)
-            self.assertAlmostEqual(expected, sign*actual.real, places=6)
+            self.assertAlmostEqual(expected, actual.real, places=6)
 
         # Probability vector from state vector
-        result_probability_vector = [numpy.absolute(e)**2 for e in result_state_vector]
+        result_probability_vector = [np.absolute(e)**2 for e in result_state_vector]
         print(["{0:.3f}".format(e) for e in result_probability_vector])
         for expected, actual in zip(probability_vector, result_probability_vector):
             self.assertAlmostEqual(expected, actual, places=2)
@@ -94,8 +96,8 @@ class MöttönenStatePrepTests(unittest.TestCase):
         {'vector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]}
     )
     def test_state_preparation(self, vector):
-        vector = numpy.asarray(vector)
-        vector = (1 / numpy.linalg.norm(vector)) * vector
+        vector = np.asarray(vector)
+        vector = (1 / np.linalg.norm(vector)) * vector
         self.execute_test(list(vector))
 
     def test_instantiation(self):

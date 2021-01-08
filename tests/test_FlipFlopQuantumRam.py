@@ -20,8 +20,7 @@ import qiskit
 from ddt import ddt, data as test_data, unpack
 from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
 from qiskit.circuit.measure import measure
-from qiskit.extensions import standard
-from qiskit.providers import BaseBackend, BaseJob
+from qiskit.providers import BaseBackend
 from qiskit.result import Result
 
 from dc_qiskit_algorithms.FlipFlopQuantumRam import FFQramDb, add_vector
