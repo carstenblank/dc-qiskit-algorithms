@@ -205,5 +205,16 @@ def add_vector(db, vec):
     vector = np.asarray(vec)
     l2_norm = np.linalg.norm(vector)
     unit_vector = vector / l2_norm
+
+    number_of_bytes = int(np.ceil(np.log2(len(vector))) // 8 + 1)
+
     for i, v in enumerate(unit_vector):
-        db.add_entry_int(v, 0, i)
+        if abs(v) > 1e-6:
+            label_as_bytes = (i).to_bytes(number_of_bytes, byteorder='big')
+            label_check = int.from_bytes(label_as_bytes, byteorder='big')
+
+            from bitstring import BitArray
+            ba = BitArray(label_as_bytes)
+
+            db.add_entry(v, b'', label_as_bytes)
+
