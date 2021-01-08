@@ -50,12 +50,14 @@ class MöttönenStatePrepTests(unittest.TestCase):
         # State vector
         result_state_vector = result.get_statevector('state prep')
         print(["{0:.2f}".format(e) for e in result_state_vector])
-        sign = 1.0
-        if abs(vector[0] - result_state_vector[0].real) > 1e-6:
-            sign = -1.0
+        # Try to find a global phase
+        global_phase = set([np.angle(v) - np.angle(rv) for v, rv in zip(vector, result_state_vector)
+                            if abs(v) > 1e-3 and abs(rv) > 1e-3])
+        global_phase = global_phase.pop() or 0.0
+        result_state_vector = np.exp(1.0j * global_phase) * result_state_vector
         for expected, actual in zip(vector, result_state_vector):
             self.assertAlmostEqual(actual.imag, 0.0, places=6)
-            self.assertAlmostEqual(expected, sign*actual.real, places=6)
+            self.assertAlmostEqual(expected, actual.real, places=6)
 
         # Probability vector from state vector
         result_probability_vector = [np.absolute(e)**2 for e in result_state_vector]
