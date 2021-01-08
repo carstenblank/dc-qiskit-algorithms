@@ -15,7 +15,7 @@
 import unittest
 from typing import List
 
-import numpy
+import numpy as np
 import qiskit
 from ddt import ddt, data as test_data, unpack
 from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
@@ -29,7 +29,7 @@ from dc_qiskit_algorithms.FlipFlopQuantumRam import FFQramDb, add_vector
 class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
 
     def execute_test(self, vector: List[float]):
-        probability_vector = [numpy.absolute(e)**2 for e in vector]
+        probability_vector = [np.absolute(e)**2 for e in vector]
         print("Input Vector (state) & its measurement probability:")
         print(["{0:.3f}".format(e) for e in vector])
         print(["{0:.3f}".format(e) for e in probability_vector])
@@ -58,8 +58,8 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         print("Full simulated state vector (n+1!)")
         print(["{0:.2f}".format(e) for e in result_state_vector])
 
-        correct_branch_state = numpy.asarray(result_state_vector)[8:]
-        correct_branch_state = correct_branch_state / numpy.linalg.norm(correct_branch_state)
+        correct_branch_state = np.asarray(result_state_vector)[8:]
+        correct_branch_state = correct_branch_state / np.linalg.norm(correct_branch_state)
 
         print("State vector on the correct (1) branch:")
         print(["{0:.2f}".format(e) for e in correct_branch_state])
