@@ -15,7 +15,7 @@
 import unittest
 from typing import List
 
-import numpy
+import numpy as np
 import qiskit
 from ddt import ddt, data as test_data, unpack
 from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
@@ -29,7 +29,7 @@ from dc_qiskit_algorithms.FlipFlopQuantumRam import FFQramDb, add_vector
 class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
 
     def execute_test(self, vector: List[float]):
-        probability_vector = [numpy.absolute(e)**2 for e in vector]
+        probability_vector = [np.absolute(e)**2 for e in vector]
         print("Input Vector (state) & its measurement probability:")
         print(["{0:.3f}".format(e) for e in vector])
         print(["{0:.3f}".format(e) for e in probability_vector])
@@ -58,8 +58,8 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         print("Full simulated state vector (n+1!)")
         print(["{0:.2f}".format(e) for e in result_state_vector])
 
-        correct_branch_state = numpy.asarray(result_state_vector)[8:]
-        correct_branch_state = correct_branch_state / numpy.linalg.norm(correct_branch_state)
+        correct_branch_state = np.asarray(result_state_vector)[8:]
+        correct_branch_state = correct_branch_state / np.linalg.norm(correct_branch_state)
 
         print("State vector on the correct (1) branch:")
         print(["{0:.2f}".format(e) for e in correct_branch_state])
@@ -108,9 +108,24 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         {'vector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]}
     )
     def test_state_preparation(self, vector):
-        vector = numpy.asarray(vector)
-        vector = (1 / numpy.linalg.norm(vector)) * vector
+        self.check_add_vector(vector)
+
+        vector = np.asarray(vector)
+        vector = (1 / np.linalg.norm(vector)) * vector
         self.execute_test(list(vector))
+
+    def check_add_vector(self, vector):
+        unit_vector = np.asarray(vector)
+        l2_norm = np.linalg.norm(unit_vector)
+        unit_vector = unit_vector / l2_norm
+
+        labels = [i for i, v in enumerate(unit_vector) if abs(v) > 1e-6]
+        db = FFQramDb()
+        add_vector(db, vector)
+
+        check_labels = [int.from_bytes(e.label, byteorder='big') for e in db]
+
+        self.assertListEqual(labels, check_labels)
 
 
 if __name__ == '__main__':

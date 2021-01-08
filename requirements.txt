@@ -3,7 +3,6 @@ qiskit>=0.20.0
 numpy
 scipy
 bitstring
-bitarray
 scikit_learn
 ddt
 sympy
