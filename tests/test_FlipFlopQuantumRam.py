@@ -108,9 +108,24 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         {'vector': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]}
     )
     def test_state_preparation(self, vector):
-        vector = numpy.asarray(vector)
-        vector = (1 / numpy.linalg.norm(vector)) * vector
+        self.check_add_vector(vector)
+
+        vector = np.asarray(vector)
+        vector = (1 / np.linalg.norm(vector)) * vector
         self.execute_test(list(vector))
+
+    def check_add_vector(self, vector):
+        unit_vector = np.asarray(vector)
+        l2_norm = np.linalg.norm(unit_vector)
+        unit_vector = unit_vector / l2_norm
+
+        labels = [i for i, v in enumerate(unit_vector) if abs(v) > 1e-6]
+        db = FFQramDb()
+        add_vector(db, vector)
+
+        check_labels = [int.from_bytes(e.label, byteorder='big') for e in db]
+
+        self.assertListEqual(labels, check_labels)
 
 
 if __name__ == '__main__':
