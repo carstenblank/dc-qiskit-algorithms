@@ -111,9 +111,7 @@ class FFQramEntry(object):
         else:
             bus_register = bus
 
-        ba = self.get_bits()
-        for i in range(len(bus_register) - ba.length()):
-            ba.append(False)
+        ba = self.get_bits(len(bus_register))
 
         for i, b in enumerate(reversed(ba)):
             if b == "0":
