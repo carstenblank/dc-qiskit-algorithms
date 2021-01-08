@@ -50,7 +50,7 @@ add_vector
 import math
 from typing import List, Union
 
-from bitarray import bitarray
+from bitstring import BitArray
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Qubit
 
@@ -70,8 +70,8 @@ class FFQramEntry(object):
         self.data = bytes()  # type: bytes
         self.label = bytes()  # type: bytes
 
-    def get_bits(self):
-        # type: (FFQramEntry) -> bitarray
+    def get_bits(self, bin_length=None):
+        # type: (FFQramEntry) -> str
         """
         Get the binary bit representation of data and label
         for state basis identification
@@ -79,10 +79,9 @@ class FFQramEntry(object):
         :return: a bit array
         """
         b = self.data + self.label
-        ba = bitarray()
-        ba.frombytes(b)
-        ba = bitarray(ba.to01().lstrip('0'))
-        ba.reverse()
+        ba = BitArray(b)
+        ba = ba.bin.lstrip('0')
+        ba = ba.zfill(bin_length) if bin_length is not None else ba
         return ba
 
     def bus_size(self):
@@ -92,7 +91,7 @@ class FFQramEntry(object):
 
         :return: the length
         """
-        return self.get_bits().length()
+        return len(self.get_bits(1))
 
     def add_to_circuit(self, qc, bus, register):
         # type: (FFQramEntry, QuantumCircuit, Union[QuantumRegister, list], Qubit) -> QuantumCircuit
@@ -116,18 +115,20 @@ class FFQramEntry(object):
         for i in range(len(bus_register) - ba.length()):
             ba.append(False)
 
-        for i, b in enumerate(ba):
-            if not b: qc.x(bus_register[i])
+        for i, b in enumerate(reversed(ba)):
+            if b == "0":
+                qc.x(bus_register[i])
 
         cnry(qc, theta, bus_register, register)
 
-        for i, b in enumerate(ba):
-            if not b: qc.x(bus_register[i])
+        for i, b in enumerate(reversed(ba)):
+            if b == "0":
+                qc.x(bus_register[i])
 
         return qc
 
     def __str__(self):
-        return "FFQramEntry(%.8f, %s)" % (self.probability_amplitude, self.get_bits().to01())
+        return "FFQramEntry(%.8f, %s)" % (self.probability_amplitude, self.get_bits().bin)
 
     @staticmethod
     def _count_set_bits(b):
@@ -137,9 +138,7 @@ class FFQramEntry(object):
         :param b: the data
         :return: the count
         """
-        ba = bitarray()
-        ba.frombytes(b)
-        return ba.count()
+        raise DeprecationWarning("This method is as it stands not functional... there is no way to reconcile this.")
 
 
 class FFQramDb(List[FFQramEntry]):
@@ -193,13 +192,7 @@ class FFQramDb(List[FFQramEntry]):
         :param data: the integer value of the data
         :param label: the integer value of the label
         """
-        data_bits = [d == '1' for d in "{0:b}".format(data)]
-        label_bits = [d == '1' for d in "{0:b}".format(label)]
-        data_bits.reverse()
-        label_bits.reverse()
-        data_bytes = bitarray(data_bits, endian='little').tobytes()
-        label_bytes = bitarray(label_bits, endian='little').tobytes()
-        self.add_entry(pa, data_bytes, label_bytes)
+        raise DeprecationWarning("This method is as it stands not functional... there is no way to reconcile this.")
 
 
 def add_vector(db, vec):
