@@ -4,4 +4,3 @@ nbsphinx
 pygments-github-lexers
 pybind11
 qiskit
-bitarray
