@@ -59,11 +59,11 @@ MöttönenStatePrep
 """
 
 import math
-from typing import List, Tuple, Union
+from typing import List, Union
 
 import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.circuit import Gate, Instruction, Qubit, Clbit
+from qiskit.circuit import Gate, Instruction, Qubit
 from qiskit.extensions import RYGate, RZGate
 from scipy import sparse
 
@@ -142,15 +142,18 @@ class RYGateNegatedAngle(RYGate):
 class MöttönenStatePreparationGate(Gate):
     """Uniform rotation Y gate (Möttönen)."""
 
-    def __init__(self, vector):
-        # type: (Union[sparse.dok_matrix, List[complex], List[float]]) -> None
+    def __init__(self, vector, neglect_absolute_value=False):
+        # type: (Union[sparse.dok_matrix, List[complex], List[float]], bool) -> None
         """
         Create the composite gate for the Möttönen state preparation scheme with an input vector, which registers/qubits
         to apply it to, and the circuit (if any)
         :param vector: the input complex sparse vector
+        :param neglect_absolute_value: When given a vector, the absolute value is neglected which means that only the
+                                        phase/angle is applied (RZ rotations)
         """
         if isinstance(vector, list):
             vector = sparse.dok_matrix([vector]).transpose()
+        self.neglect_absolute_value = neglect_absolute_value
         num_qubits = int(math.log2(vector.shape[0]))
         super().__init__("state_prep_möttönen", num_qubits=num_qubits, params=[])
         self.vector = vector  # type: sparse.dok_matrix
@@ -167,10 +170,10 @@ class MöttönenStatePreparationGate(Gate):
         qc = QuantumCircuit(q, name=self.name)
 
         qc_rot_z = self.apply_rot_z(omega, q)
-        qc_rot_y = self.apply_rot_y(a, q)
-
         qc = qc.combine(qc_rot_z)
-        qc = qc.combine(qc_rot_y)
+        if not self.neglect_absolute_value:
+            qc_rot_y = self.apply_rot_y(a, q)
+            qc = qc.combine(qc_rot_y)
 
         self._definition = qc.inverse()
 
