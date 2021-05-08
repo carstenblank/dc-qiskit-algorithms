@@ -89,7 +89,8 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
 
         iso_gate = IsometryGate(matrix)
 
-        angle_matrix = iso_gate._to_angle_matrix_z()
+        angle_matrix, global_phase = iso_gate._to_angle_matrix_z()
+        angle_matrix = sparse.vstack([global_phase, angle_matrix]).todok()
         log.info("Final Angle Matrix (Z):\n" + str(angle_matrix.todense()))
 
         # The recovery is done by using a pre factor of 1/2 given the definition of the R_y gate
