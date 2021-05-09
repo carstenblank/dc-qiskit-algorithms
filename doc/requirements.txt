@@ -1,3 +1,4 @@
+sphinx-autodoc-typehints
 sphinxcontrib-bibtex
 ipykernel
 nbsphinx

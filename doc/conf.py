@@ -31,6 +31,7 @@ needs_sphinx = '1.6'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
@@ -223,7 +224,6 @@ htmlhelp_basename = 'DataCyberneticsQiskitAlgorithmsdoc'
 # Register the theme as an extension to generate a sitemap.xml
 # extensions.append("guzzle_sphinx_theme")
 
-# xanadu theme options (see theme.conf for more information)
 html_theme_options = {
 
     # Set the path to a special layout to include for the homepage
