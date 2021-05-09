@@ -11,42 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-r"""
-FlipFlopQuantumRam
-====================
-
-.. currentmodule:: dc_qiskit_algorithms.FlipFlopQuantumRam
-
-This module implements the state preparation scheme called FFQRAM see https://arxiv.org/abs/1901.02362.
-
-.. autosummary::
-   :nosignatures:
-
-   FFQramEntry
-   FFQramDb
-   add_vector
-
-Each DB has entries that are created by controlled rotations. The final step is a measurement to cancel out
-the wrong branch. This makes the algorithm probabilistic in its nature.
-
-FFQramEntry
-#############
-
-.. autoclass:: FFQramEntry
-
-FFQramDb
-##########
-
-.. autoclass:: FFQramEntry
-
-
-add_vector
-###########
-
--- autofunction:: add_vector
-
-"""
-
 import math
 from typing import List, Union
 

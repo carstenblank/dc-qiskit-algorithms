@@ -12,13 +12,14 @@ from dc_qiskit_algorithms import UniformRotationGate
 from dc_qiskit_algorithms.MöttönenStatePreparation import get_alpha_y, get_alpha_z, MöttönenStatePreparationGate
 
 
-class IsometryGate(Gate):
+class ControlledStatePreparationGate(Gate):
 
-    def __init__(self, matrix) -> None:
+    def __init__(self, matrix: sparse.dok_matrix) -> None:
         """
         matrix = A = (a_ij)
         with j being the control and
-        :param: matrix
+
+        :param: matrix that has the columns as subspaces and rows as the states to create in them
         """
 
         if isinstance(matrix, list) or isinstance(matrix, np.ndarray):
@@ -44,9 +45,7 @@ class IsometryGate(Gate):
         self.matrix_abs = matrix_abs
         self.matrix_angle = matrix_angle
 
-    def _to_angle_matrix_y(self):
-        # type: () -> Union[sparse.dok_matrix]
-
+    def _to_angle_matrix_y(self) -> Union[sparse.dok_matrix]:
         # First, for each column, the angles that lead to this state need to be computed.
         matrix_A = sparse.dok_matrix((self.matrix_abs.shape[0] - 1, self.matrix_abs.shape[1]))
         for col_no in range(self.matrix_abs.shape[1]):
@@ -63,9 +62,7 @@ class IsometryGate(Gate):
 
         return matrix_A
 
-    def _to_angle_matrix_z(self):
-        # type: () -> Tuple[sparse.spmatrix, sparse.spmatrix]
-
+    def _to_angle_matrix_z(self) -> Tuple[sparse.spmatrix, sparse.spmatrix]:
         # First, for each column, the angles that lead to this state need to be computed.
         matrix_A = sparse.dok_matrix((self.matrix_angle.shape[0] - 1, self.matrix_angle.shape[1]))
         for col_no in range(self.matrix_angle.shape[1]):
@@ -126,14 +123,14 @@ class IsometryGate(Gate):
 
             # If there are no z-rotations we save a lot of gates, so we want to rule that out
             if not no_z_rotations:
-                angles_z: sparse.spmatrix = z_angle_matrix[range(IsometryGate._chi(l) - 1, IsometryGate._chi(l + 1) - 1), :]
+                angles_z: sparse.spmatrix = z_angle_matrix[range(ControlledStatePreparationGate._chi(l) - 1, ControlledStatePreparationGate._chi(l + 1) - 1), :]
                 angles_z = angles_z.reshape(-1, 1)
                 gate_z = UniformRotationGate(gate=lambda a: RZGate(a), alpha=angles_z.todok())
                 qc_z.append(gate_z, qargs)
                 qc_z.barrier()
 
             # The uniform rotation for the y rotation will take care of the absolute value
-            angles_y: sparse.spmatrix = y_angle_matrix[range(IsometryGate._chi(l) - 1, IsometryGate._chi(l+1) - 1), :]
+            angles_y: sparse.spmatrix = y_angle_matrix[range(ControlledStatePreparationGate._chi(l) - 1, ControlledStatePreparationGate._chi(l + 1) - 1), :]
             angles_y = angles_y.reshape(-1, 1)
             gate_y = UniformRotationGate(gate=lambda a: RYGate(a), alpha=angles_y.todok())
             qc_y.append(gate_y, qargs)
