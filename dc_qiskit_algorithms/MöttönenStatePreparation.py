@@ -11,27 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-r"""
-MöttönenStatePreparation
-========================
-
-.. currentmodule:: dc_qiskit_algorithms.MöttönenStatePreparation
-
-This module implements the state preparation scheme defined by Möttönen et. al.
-(http://dl.acm.org/citation.cfm?id=2011670.2011675)
-
-.. autosummary::
-   :nosignatures:
-
-   get_alpha_z
-   get_alpha_y
-   state_prep_möttönen
-   state_prep_möttönen_dg
-   MöttönenStatePreparationGate
-
-See below the meaning and usage of the functions and the class
-"""
-
 import math
 from typing import List, Union
 
