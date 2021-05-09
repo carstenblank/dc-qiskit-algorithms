@@ -24,7 +24,7 @@ from qiskit.result import Result
 from scipy import sparse
 from scipy.sparse import linalg
 
-from dc_qiskit_algorithms.ControlledMottonen import ControlledStatePreparationGate
+from dc_qiskit_algorithms.ControlledStatePreparation import ControlledStatePreparationGate
 
 logging.basicConfig(format=logging.BASIC_FORMAT, level='ERROR')
 log = logging.getLogger(__name__)
