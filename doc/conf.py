@@ -31,12 +31,12 @@ needs_sphinx = '1.6'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx_autodoc_typehints',
     'sphinx.ext.autosummary',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.viewcode',
 #    'sphinxcontrib.bibtex',
