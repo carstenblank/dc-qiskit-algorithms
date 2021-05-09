@@ -24,7 +24,7 @@ from qiskit.result import Result
 from scipy import sparse
 from scipy.sparse import linalg
 
-from dc_qiskit_algorithms.ControlledMottonen import IsometryGate
+from dc_qiskit_algorithms.ControlledMottonen import ControlledStatePreparationGate
 
 logging.basicConfig(format=logging.BASIC_FORMAT, level='ERROR')
 log = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
 
         log.info("Input Matrix (Y):\n" + str(abs_matrix))
 
-        iso_gate = IsometryGate(matrix)
+        iso_gate = ControlledStatePreparationGate(matrix)
 
         angle_matrix = iso_gate._to_angle_matrix_y()
         log.info("Final Angle Matrix (Y):\n" + str(angle_matrix.todense()))
@@ -87,7 +87,7 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
 
         log.info("Input Phase Matrix (Z):\n" + str(phase_matrix))
 
-        iso_gate = IsometryGate(matrix)
+        iso_gate = ControlledStatePreparationGate(matrix)
 
         angle_matrix, global_phase = iso_gate._to_angle_matrix_z()
         angle_matrix = sparse.vstack([global_phase, angle_matrix]).todok()
@@ -156,7 +156,7 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
 
         # The numbering is LSB on the left / MSB on the right. This creates unexpected results if not taken into account
         qc.h(ctrl_qb)
-        qc.append(IsometryGate(matrix_normed), list(ctrl_qb) + list(reversed(tgt_qb)))
+        qc.append(ControlledStatePreparationGate(matrix_normed), list(ctrl_qb) + list(reversed(tgt_qb)))
 
         # The the resulting state vector from the state vector simulator
         backend: AerBackend = qiskit.Aer.get_backend('statevector_simulator')

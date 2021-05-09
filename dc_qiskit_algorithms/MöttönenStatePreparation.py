@@ -27,6 +27,7 @@ def get_alpha_z(omega, n, k):
     # type: (sparse.dok_matrix, int, int) -> sparse.dok_matrix
     """
     Computes the rotation angles alpha for the z-rotations
+
     :param omega: the input phase
     :param n: total number of qubits
     :param k: current qubit
@@ -48,6 +49,7 @@ def get_alpha_y(a, n, k):
     # type: (sparse.dok_matrix, int, int) -> sparse.dok_matrix
     """
     Computes the rotation angles alpha for the y-rotations
+
     :param a: the input absolute values
     :param n: total number of qubits
     :param k: current qubit
@@ -100,6 +102,7 @@ class MöttönenStatePreparationGate(Gate):
         """
         Create the composite gate for the Möttönen state preparation scheme with an input vector, which registers/qubits
         to apply it to, and the circuit (if any)
+
         :param vector: the input complex sparse vector
         :param neglect_absolute_value: When given a vector, the absolute value is neglected which means that only the
                                         phase/angle is applied (RZ rotations)
@@ -135,6 +138,7 @@ class MöttönenStatePreparationGate(Gate):
         # type: (sparse.dok_matrix, QuantumRegister) -> QuantumCircuit
         """
         Applies the cascade of y-uniform rotations to the qubits
+
         :param a: the sparse absolute value vector
         :param qreg: quantum register to which the scheme are applied
         :return: None
@@ -154,6 +158,7 @@ class MöttönenStatePreparationGate(Gate):
         # type: (sparse.dok_matrix, QuantumRegister) -> QuantumCircuit
         """
         Applies the cascade of z-uniform rotations to the qubits
+
         :param omega: the sparse phase vector
         :param qreg: quantum register to which the scheme are applied
         :return: None
@@ -175,6 +180,7 @@ def state_prep_möttönen(self, a, qubits):
     # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit], QuantumRegister]) -> Instruction
     """
     Convenience function to encapsulate the composite gate of the state preparation
+
     :param self: Quantum circuit to apply this to
     :param a: the input vector
     :param qubits: the qubits to be transformed
@@ -194,6 +200,7 @@ def state_prep_möttönen_dg(self, a, qubits):
     # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit], QuantumRegister]) -> Instruction
     """
         Convenience function to encapsulate the composite gate of the dagger of the state preparation
+
         :param self: Composite Gate or Quantum circuit to apply this to
         :param a: the input vector
         :param qubits: the qubits to be transformed

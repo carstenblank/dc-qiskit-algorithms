@@ -11,27 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-r"""
-DraperAdder
-===========
-
-.. currentmodule:: dc_qiskit_algorithms.DraperAdder
-
-This is the legendary Draper adder (arXiv:quant-ph/0008033).
-
-.. autosummary::
-   :nosignatures:
-
-   add_draper
-
-More details:
-
-draper_adder
-############
-
-.. autofunction:: add_draper
-
-"""
 from typing import Optional, Tuple, List, Union
 
 from qiskit import QuantumCircuit, QuantumRegister
