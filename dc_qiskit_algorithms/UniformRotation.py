@@ -38,8 +38,8 @@ There are many convenience functions also being monkey patched.
    uniry
    uniry_dg
    MultiControlledXGate
-   ccx
-   ccx_dg
+   ccx_uni_rot
+   ccx_uni_rot_dg
 
 Here are the details:
 
@@ -108,15 +108,15 @@ MultiControlledXGate
 
 .. autoclass:: MultiControlledXGate
 
-ccx
-#####
+ccx_uni_rot
+###########
 
-.. autofunction:: ccx
+.. autofunction:: ccx_uni_rot
 
-ccx_dg
-#######
+ccx_uni_rot_dg
+##############
 
-.. autofunction:: ccx_dg
+.. autofunction:: ccx_uni_rot_dg
 
 """
 import logging

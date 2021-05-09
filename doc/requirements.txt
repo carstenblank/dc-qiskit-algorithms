@@ -3,4 +3,13 @@ ipykernel
 nbsphinx
 pygments-github-lexers
 pybind11
-qiskit
+qiskit>=0.20.0
+numpy
+scipy
+bitstring
+scikit_learn
+ddt
+sympy
+nxpd
+pydot
+

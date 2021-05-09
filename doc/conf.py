@@ -38,7 +38,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.bibtex',
+#    'sphinxcontrib.bibtex',
     'edit_on_github'
 ]
 

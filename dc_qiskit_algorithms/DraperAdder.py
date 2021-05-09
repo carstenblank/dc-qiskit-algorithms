@@ -22,14 +22,14 @@ This is the legendary Draper adder (arXiv:quant-ph/0008033).
 .. autosummary::
    :nosignatures:
 
-   draper_adder
+   add_draper
 
 More details:
 
 draper_adder
 ############
 
-.. autofunction:: draper_adder
+.. autofunction:: add_draper
 
 """
 from typing import Optional, Tuple, List, Union

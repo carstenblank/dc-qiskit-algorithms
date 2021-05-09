@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 r"""
-MöttönenStatePrep
-==================
+MöttönenStatePreparation
+========================
 
-.. currentmodule:: dc_qiskit_algorithms.MöttönenStatePrep
+.. currentmodule:: dc_qiskit_algorithms.MöttönenStatePreparation
 
 This module implements the state preparation scheme defined by Möttönen et. al.
 (http://dl.acm.org/citation.cfm?id=2011670.2011675)
@@ -27,35 +27,9 @@ This module implements the state preparation scheme defined by Möttönen et. al
    get_alpha_y
    state_prep_möttönen
    state_prep_möttönen_dg
-   MöttönenStatePrep
+   MöttönenStatePreparationGate
 
 See below the meaning and usage of the functions and the class
-
-get_alpha_z
-############
-
-.. autofunction:: get_alpha_z
-
-get_alpha_y
-############
-
-.. autofunction:: get_alpha_y
-
-get_alpha_y
-############
-
-.. autofunction:: state_prep_möttönen
-
-get_alpha_y
-############
-
-.. autofunction:: state_prep_möttönen_dg
-
-MöttönenStatePrep
-##################
-
-.. autoclass:: MöttönenStatePrep
-
 """
 
 import math
