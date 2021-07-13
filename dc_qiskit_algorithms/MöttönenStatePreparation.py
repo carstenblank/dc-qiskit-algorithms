@@ -19,6 +19,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Gate, Instruction, Qubit
 from qiskit.extensions import RYGate, RZGate
 from scipy import sparse
+from scipy.sparse.linalg import norm
 
 from .UniformRotation import UniformRotationGate
 
@@ -126,11 +127,16 @@ class MöttönenStatePreparationGate(Gate):
             a[i, j] = np.absolute(v)
             omega[i, j] = np.angle(v)
 
+        # As the subspace phase correction is a very expensive module, we only want to do it if the
+        # z rotation matrix is non-zero!
+        no_z_rotations = abs(norm(omega)) < 1e-3
+
         q = QuantumRegister(self.num_qubits, "qubits")
         qc = QuantumCircuit(q, name=self.name)
 
-        qc_rot_z = self.apply_rot_z(omega, q)
-        qc = qc.combine(qc_rot_z)
+        if not no_z_rotations:
+            qc_rot_z = self.apply_rot_z(omega, q)
+            qc = qc.combine(qc_rot_z)
         if not self.neglect_absolute_value:
             qc_rot_y = self.apply_rot_y(a, q)
             qc = qc.combine(qc_rot_y)
