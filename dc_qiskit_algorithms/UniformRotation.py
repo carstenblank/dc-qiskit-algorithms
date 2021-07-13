@@ -115,7 +115,11 @@ class UniformRotationGate(Gate):
         :param alpha: The conditional rotation angles
         """
         number_of_control_qubits = int(np.ceil(np.log2(alpha.shape[0])))
-        super().__init__("uni_rot_" + gate(0).name, num_qubits=number_of_control_qubits + 1, params=[])
+
+        vector_str = ",".join([f'{v:.2f}' for v in alpha.toarray()[:, 0]])
+        label = f'uni_rot_{gate(0).name}({vector_str})' if len(alpha) <= 16 else None
+
+        super().__init__(f'uni_rot_{gate(0).name}', num_qubits=number_of_control_qubits + 1, params=[], label=label)
         self.alpha = alpha  # type: sparse.dok_matrix
         self.gate = gate  # type: Callable[[float], Gate]
 
