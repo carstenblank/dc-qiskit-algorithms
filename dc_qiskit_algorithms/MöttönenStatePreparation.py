@@ -111,7 +111,11 @@ class MöttönenStatePreparationGate(Gate):
             vector = sparse.dok_matrix([vector]).transpose()
         self.neglect_absolute_value = neglect_absolute_value
         num_qubits = int(math.log2(vector.shape[0]))
-        super().__init__("state_prep_möttönen", num_qubits=num_qubits, params=[])
+
+        vector_str = ",".join([f'{v:.2f}' for v in vector.toarray()[:, 0]])
+        label = f'state({vector_str})' if len(vector) <= 16 else None
+
+        super().__init__("state_prep_möttönen", num_qubits=num_qubits, params=[], label=label)
         self.vector = vector  # type: sparse.dok_matrix
 
     def _define(self):
