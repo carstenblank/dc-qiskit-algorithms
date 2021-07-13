@@ -12,6 +12,10 @@ from dc_qiskit_algorithms import UniformRotationGate
 from dc_qiskit_algorithms.MöttönenStatePreparation import get_alpha_y, get_alpha_z, MöttönenStatePreparationGate
 
 
+def _chi(l):
+    return 1 + sum([2 ** (i - 1) for i in range(1, l)])
+
+
 class ControlledStatePreparationGate(Gate):
 
     def __init__(self, matrix: sparse.dok_matrix) -> None:
@@ -98,10 +102,6 @@ class ControlledStatePreparationGate(Gate):
         # matrix. That is the global phase of that subspace!
         global_phases: sparse.spmatrix = self.matrix_angle[0, :] - recovered_angles
         return matrix_A, global_phases
-
-    @staticmethod
-    def _chi(l):
-        return 1 + sum([2**(i-1) for i in range(1, l)])
 
     def _define(self):
         # The y angle matrix stands for the absolute value, while the z angles stand for phases
