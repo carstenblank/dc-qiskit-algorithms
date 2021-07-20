@@ -165,27 +165,50 @@ class ControlledStatePreparationGate(Gate):
         #             gate = RZGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
         #             qc_z.append(gate, list(control) + target[0:num_extra_control + 1])
 
+        # We do a set of uniformly controlled operations from the control register on each target qubit.
+        # iterating through the target means that a target qubit that has been handled (i.e. was a target of a
+        # uniform rotation) becomes a controlling qubit.
+        # Thus, when creating the qargs for the operation, there are going to be all qubits of the control register
+        # plus those target register qubits that have been used plus the current target qubit as the target
+        # of the uniform rotation
         for l in range(1, self.num_targets_qb + 1):
-            qargs = list(control) + target[0:l]
+            # Using slicing to get the correct target register qubits, start at the last, go to the (l+1) last.
+            # The ordering of the qubits in the register is a bit weird... explanation:
+            # ctr = [ctr0, ctr1, ctr2, ctr3], tgt = tgt0, tgt1, tgt2, tgt3
+            # l = 2: qargs = [ctr0, ctr1, ctr2, ctr,3, tgt3, tgt2]
+            #                                                  ^==> target of operation
+            # the Möttönen et al. scheme uses the idea to move a ket |a> to |0> via U. The inverse of this operation
+            # thus will take |0> to the desired state |a>. The first step of constructing U is to cancel the first qubit
+            # (tgt0) to be only having the ground state contributing in a product state, this is controlled
+            # by [tgt1, tgt2, tgt3]. Then (tgt1) is targeted (controls [tgt2, tgt3]) until (tgt3) is reached
+            # (no control). This is inverted, thus first (tgt3) until (tgt0) with corresponding controls.
+            qargs = list(control) + target[-1:-1-l:-1]
 
             # If there are no z-rotations we save a lot of gates, so we want to rule that out
             if not no_z_rotations:
-                angles_z: sparse.spmatrix = z_angle_matrix[range(ControlledStatePreparationGate._chi(l) - 1, ControlledStatePreparationGate._chi(l + 1) - 1), :]
-                angles_z = angles_z.reshape(-1, 1)
-                gate_z = UniformRotationGate(gate=lambda a: RZGate(a), alpha=angles_z.todok())
+                # The corresponding rotational angles are given in the Z-angle matrix by the function chi selecting
+                # on the columns according to the operational parameter l.
+                angles_z: sparse.spmatrix = z_angle_matrix[:, range(_chi(l) - 1, _chi(l + 1) - 1)]
+                # The column-first Fortran-style reshaping to create one angle vector
+                angles_z = angles_z.reshape(-1, 1, order='F')
+                # The negative of the angles is needed to implement the inverse (as described above)
+                gate_z = UniformRotationGate(gate=lambda a: RZGate(a), alpha=-angles_z.todok())
                 qc_z.append(gate_z, qargs)
-                qc_z.barrier()
 
             # The uniform rotation for the y rotation will take care of the absolute value
-            angles_y: sparse.spmatrix = y_angle_matrix[range(ControlledStatePreparationGate._chi(l) - 1, ControlledStatePreparationGate._chi(l + 1) - 1), :]
-            angles_y = angles_y.reshape(-1, 1)
-            gate_y = UniformRotationGate(gate=lambda a: RYGate(a), alpha=angles_y.todok())
+            # The corresponding rotational angles are given in the Z-angle matrix by the function chi selecting
+            # on the columns according to the operational parameter l.
+            angles_y: sparse.spmatrix = y_angle_matrix[:, range(_chi(l) - 1, _chi(l + 1) - 1)]
+            # The column-first Fortran-style reshaping to create one angle vector
+            angles_y = angles_y.reshape(-1, 1, order='F')
+            # The negative of the angles is needed to implement the inverse (as described above)
+            gate_y = UniformRotationGate(gate=lambda a: RYGate(a), alpha=-angles_y.todok())
             qc_y.append(gate_y, qargs)
 
         if not no_z_rotations:
             # A relative phase correction is pretty intensive: a state preparation on the control
             global_phase_correction = MöttönenStatePreparationGate(
-                sparse.dok_matrix(np.exp(1.0j * global_phases.T.toarray())),
+                sparse.dok_matrix(np.exp(-1.0j * global_phases.T.toarray())),
                 neglect_absolute_value=True
             )
             qc_z.append(global_phase_correction, qargs=control)
