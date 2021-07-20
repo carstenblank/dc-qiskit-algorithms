@@ -20,8 +20,15 @@ class ControlledStatePreparationGate(Gate):
 
     def __init__(self, matrix: sparse.dok_matrix) -> None:
         """
-        matrix = A = (a_ij)
-        with j being the control and
+        The matrix has the following structure:
+
+        A = (a_ij)
+
+        with i being the control and j  being the target. Also, each row must be normalized, i.e.,
+
+        \sum_j |a_ij|^2 = 1
+
+        The matrix is the quantum equivalent of a stochastic matrix therefore.
 
         :param: matrix that has the columns as subspaces and rows as the states to create in them
         """
@@ -51,56 +58,56 @@ class ControlledStatePreparationGate(Gate):
 
     def _to_angle_matrix_y(self) -> Union[sparse.dok_matrix]:
         # First, for each column, the angles that lead to this state need to be computed.
-        matrix_A = sparse.dok_matrix((self.matrix_abs.shape[0] - 1, self.matrix_abs.shape[1]))
-        for col_no in range(self.matrix_abs.shape[1]):
-            amplitudes_column: sparse.csc_matrix = self.matrix_abs.getcol(col_no)
+        matrix_A = sparse.dok_matrix((self.matrix_abs.shape[0], self.matrix_abs.shape[1] - 1))
+        for row_no in range(self.matrix_abs.shape[0]):
+            amplitudes_row: sparse.csc_matrix = self.matrix_abs.getrow(row_no).T
             # The reversed is necessary as the "highest" qubit is the one with the least controls
             # imagine a circuit the where the highest qubits control the lower one. Yes this is all but numbering
             # so that this is why I need to add this comment.
-            angle_column_list_y: List[sparse.dok_matrix] = [
-                get_alpha_y(amplitudes_column.todok(), self.num_targets_qb, k)
+            angle_row_list_y: List[sparse.dok_matrix] = [
+                get_alpha_y(amplitudes_row.todok(), self.num_targets_qb, k)
                 for k in reversed(range(1, self.num_targets_qb + 1))
             ]
-            angles_column = sparse.vstack(angle_column_list_y)
-            matrix_A[:, col_no] = angles_column
+            angles_row = sparse.vstack(angle_row_list_y)
+            matrix_A[row_no, :] = angles_row.T
 
         return matrix_A
 
     def _to_angle_matrix_z(self) -> Tuple[sparse.spmatrix, sparse.spmatrix]:
         # First, for each column, the angles that lead to this state need to be computed.
-        matrix_A = sparse.dok_matrix((self.matrix_angle.shape[0] - 1, self.matrix_angle.shape[1]))
-        for col_no in range(self.matrix_angle.shape[1]):
-            amplitudes_column: sparse.csc_matrix = self.matrix_angle.getcol(col_no)
+        matrix_A = sparse.dok_matrix((self.matrix_angle.shape[0], self.matrix_angle.shape[1] - 1))
+        for row_no in range(self.matrix_angle.shape[0]):
+            amplitudes_row: sparse.csc_matrix = self.matrix_angle.getrow(row_no).T
             # The reversed is necessary as the "highest" qubit is the one with the least controls
             # imagine a circuit the where the highest qubits control the lower one. Yes this is all but numbering
             # so that this is why I need to add this comment.
-            angle_column_list: List[sparse.dok_matrix] = [
-                get_alpha_z(amplitudes_column.todok(), self.num_targets_qb, k)
+            angle_row_list_y: List[sparse.dok_matrix] = [
+                get_alpha_z(amplitudes_row.todok(), self.num_targets_qb, k)
                 for k in reversed(range(1, self.num_targets_qb + 1))
             ]
-            angles_column = sparse.vstack(angle_column_list)
-            matrix_A[:, col_no] = angles_column
+            angles_row = sparse.vstack(angle_row_list_y)
+            matrix_A[row_no, :] = angles_row.T
 
         # A global phase is to be expected on each subspace and must be corrected jointly later.
         total_depth = int(np.ceil(np.log2(matrix_A.shape[0])))
-        recovered_angles = sparse.dok_matrix((1, matrix_A.shape[1]), dtype=float)
+        recovered_angles = sparse.dok_matrix((matrix_A.shape[0], 1), dtype=float)
         # Each row is a separate sub-space, and by the algorithm of Möttönen et al
         # a global phase is to be expected. So we calculate it by...
-        for col in range(matrix_A.shape[1]):
+        for row in range(matrix_A.shape[0]):
             # ... going through each row and applying rz rotations essentially, but not on all
             # involved qubits, just for one branch as the global phase must exist, well, globally.
-            row = 0
+            col = 0
             evaluation = 1
             for depth in range(total_depth):
                 evaluation *= np.exp(-0.5j * matrix_A[row, col])
-                row += 2**depth
+                col += 2**depth
             # After calculating the amplitude of one branch, I take the angle/phase
             # This is still not the global phase, we will get that later...
-            recovered_angles[0, col] = np.angle(evaluation)
+            recovered_angles[row, 0] = np.angle(evaluation)
 
         # ... exactly here we take the difference of the phase of each subspace and the angle
         # matrix. That is the global phase of that subspace!
-        global_phases: sparse.spmatrix = self.matrix_angle[0, :] - recovered_angles
+        global_phases: sparse.spmatrix = self.matrix_angle[:, 0] - recovered_angles
         return matrix_A, global_phases
 
     def _define(self):
