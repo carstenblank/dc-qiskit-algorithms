@@ -181,7 +181,6 @@ class ControlledStatePreparationGate(Gate):
             angles_y = angles_y.reshape(-1, 1)
             gate_y = UniformRotationGate(gate=lambda a: RYGate(a), alpha=angles_y.todok())
             qc_y.append(gate_y, qargs)
-            qc_y.barrier()
 
         if not no_z_rotations:
             # A relative phase correction is pretty intensive: a state preparation on the control
@@ -190,7 +189,6 @@ class ControlledStatePreparationGate(Gate):
                 neglect_absolute_value=True
             )
             qc_z.append(global_phase_correction, qargs=control)
-            qc_z.barrier()
 
         qc = qc_y + qc_z
         self._definition = qc
