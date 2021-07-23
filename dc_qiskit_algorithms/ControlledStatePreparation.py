@@ -36,11 +36,11 @@ class ControlledStatePreparationGate(Gate):
         if isinstance(matrix, list) or isinstance(matrix, np.ndarray):
             matrix = sparse.dok_matrix(matrix)
 
-        # The rows define the target states, i.e. the space for the controlled state preparation
-        num_targets_qb = int(math.ceil(math.log2(matrix.shape[0])))
+        # The columns define the target states, i.e. the space for the controlled state preparation
+        num_targets_qb = int(math.ceil(math.log2(matrix.shape[1])))
         self.num_targets_qb = num_targets_qb
-        # The columns define the number of control states. If there is one row, this is normal state preparation.
-        num_controls_qb = int(math.ceil(math.log2(matrix.shape[1])))
+        # The rows define the number of control states. If there is one row, this is normal state preparation.
+        num_controls_qb = int(math.ceil(math.log2(matrix.shape[0])))
         self.num_controls_qb = num_controls_qb
 
         super().__init__("iso_matrix", num_qubits=num_controls_qb + num_targets_qb, params=[])
@@ -81,15 +81,15 @@ class ControlledStatePreparationGate(Gate):
             # The reversed is necessary as the "highest" qubit is the one with the least controls
             # imagine a circuit the where the highest qubits control the lower one. Yes this is all but numbering
             # so that this is why I need to add this comment.
-            angle_row_list_y: List[sparse.dok_matrix] = [
+            angle_row_list_z: List[sparse.dok_matrix] = [
                 get_alpha_z(amplitudes_row.todok(), self.num_targets_qb, k)
                 for k in reversed(range(1, self.num_targets_qb + 1))
             ]
-            angles_row = sparse.vstack(angle_row_list_y)
+            angles_row = sparse.vstack(angle_row_list_z)
             matrix_A[row_no, :] = angles_row.T
 
         # A global phase is to be expected on each subspace and must be corrected jointly later.
-        total_depth = int(np.ceil(np.log2(matrix_A.shape[0])))
+        total_depth = max(1, int(np.ceil(np.log2(matrix_A.shape[1]))))
         recovered_angles = sparse.dok_matrix((matrix_A.shape[0], 1), dtype=float)
         # Each row is a separate sub-space, and by the algorithm of Möttönen et al
         # a global phase is to be expected. So we calculate it by...
