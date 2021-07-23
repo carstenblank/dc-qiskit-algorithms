@@ -131,6 +131,16 @@ class ControlledStatePreparationGate(Gate):
         y_angle_matrix = self._to_angle_matrix_y()
         z_angle_matrix, global_phases = self._to_angle_matrix_z()
 
+        if self._debug_flag:
+            qc_y, qc_z = self._create_debug_circuit(y_angle_matrix, z_angle_matrix)
+        else:
+            qc_y, qc_z = self._create_production_circuit(y_angle_matrix, z_angle_matrix, global_phases)
+
+        qc = qc_y + qc_z
+        self._definition = qc
+
+    def _create_production_circuit(self, y_angle_matrix, z_angle_matrix, global_phases):
+
         # As the subspace phase correction is a very expensive module, we only want to do it if the
         # z rotation matrix is non-zero!
         no_z_rotations = abs(sparse.linalg.norm(z_angle_matrix)) < 1e-6
@@ -139,27 +149,6 @@ class ControlledStatePreparationGate(Gate):
         target = QuantumRegister(self.num_targets_qb, "q^t")
         qc_y = QuantumCircuit(control, target, name=self.name)
         qc_z = QuantumCircuit(control, target, name=self.name)
-
-        # TODO: make this configurable and add z
-        # for row in range(y_angle_matrix.shape[0]):
-        #     qc_y_row = QuantumCircuit(control, target, name=self.name)
-        #     for (_, j), angle in y_angle_matrix.getrow(row).todok().items():
-        #         num_extra_control = int(np.floor(np.log2(j + 1)))
-        #         num_control = len(control) + num_extra_control
-        #         val_control = row + 2**len(control) * int(j - (2**num_extra_control - 1))
-        #         # The Ry Gate has not a divided by two, must do so.
-        #         gate = RYGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
-        #         qc_y_row.append(gate, list(control) + target[-1:-2-num_extra_control:-1])
-        #     qc_y += qc_y_row.reverse_ops().inverse()
-        # if not no_z_rotations:
-        #     for row in range(z_angle_matrix.shape[0]):
-        #         for (i, j), angle in z_angle_matrix.getrow(row).todok().items():
-        #             num_extra_control = int(np.floor(np.log2(i + 1)))
-        #             num_control = len(control) + num_extra_control
-        #             val_control = row + 2 ** len(control) * int(i - (2 ** num_extra_control - 1))
-        #             # The Rz Gate has not a divided by two, must do so.
-        #             gate = RZGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
-        #             qc_z.append(gate, list(control) + target[-1:-2-num_extra_control:-1])
 
         # TODO: old, remove soon
         # for row in range(y_angle_matrix.shape[0]):
@@ -207,7 +196,7 @@ class ControlledStatePreparationGate(Gate):
                 # The column-first Fortran-style reshaping to create one angle vector
                 angles_z = angles_z.reshape(-1, 1, order='F')
                 # The negative of the angles is needed to implement the inverse (as described above)
-                gate_z = UniformRotationGate(gate=lambda a: RZGate(a), alpha=-angles_z.todok())
+                gate_z = UniformRotationGate(gate=lambda a: RZGate(a), alpha=angles_z.todok())  # FIXME: removing the -
                 qc_z.append(gate_z, qargs)
 
             # The uniform rotation for the y rotation will take care of the absolute value
@@ -217,7 +206,7 @@ class ControlledStatePreparationGate(Gate):
             # The column-first Fortran-style reshaping to create one angle vector
             angles_y = angles_y.reshape(-1, 1, order='F')
             # The negative of the angles is needed to implement the inverse (as described above)
-            gate_y = UniformRotationGate(gate=lambda a: RYGate(a), alpha=-angles_y.todok())
+            gate_y = UniformRotationGate(gate=lambda a: RYGate(a), alpha=angles_y.todok())  # FIXME: removing the -
             qc_y.append(gate_y, qargs)
 
         if not no_z_rotations:
@@ -228,5 +217,56 @@ class ControlledStatePreparationGate(Gate):
             )
             qc_z.append(global_phase_correction, qargs=control)
 
-        qc = qc_y + qc_z
-        self._definition = qc
+        return qc_y, qc_z
+
+    def _create_debug_circuit(self, y_angle_matrix, z_angle_matrix):
+
+        # TODO: the following circuit is not equivalent. Please fix!
+        #                                                                         ░  ░
+        # q^c_0: ──────■─────────────o────────────■───────────■───────────■───────░──░─
+        #              │       ┌─────┴──────┐     │      ┌────┴─────┐┌────┴─────┐ ░  ░
+        # q^t_0: ──────┼───────┤ RY(1.3181) ├─────┼──────┤ RY(pi/2) ├┤ RY(pi/2) ├─░──░─
+        #        ┌─────┴──────┐└─────┬──────┘┌────┴─────┐└────┬─────┘└────┬─────┘ ░  ░
+        # q^t_1: ┤ RY(0.9273) ├──────o───────┤ RY(pi/2) ├─────o───────────■───────░──░─
+        #        └────────────┘              └──────────┘                         ░  ░
+        # ControlledStatePreparationGate(sparse.dok_matrix(matrix)).set_debug_flag(False).definition.draw(fold=-1)
+        #        ┌────────────────────────┐┌──────────────────────────────────┐
+        # q^c_0: ┤0                       ├┤0                                 ├
+        #        │                        ││                                  │
+        # q^t_0: ┤  uni_rot_ry(0.93,1.57) ├┤2 uni_rot_ry(1.32,1.57,0.00,1.57) ├
+        #        │                        ││                                  │
+        # q^t_1: ┤1                       ├┤1                                 ├
+        #        └────────────────────────┘└──────────────────────────────────┘
+
+        # As the subspace phase correction is a very expensive module, we only want to do it if the
+        # z rotation matrix is non-zero!
+        no_z_rotations = abs(sparse.linalg.norm(z_angle_matrix)) < 1e-6
+
+        control = QuantumRegister(self.num_controls_qb, "q^c")
+        target = QuantumRegister(self.num_targets_qb, "q^t")
+        qc_y = QuantumCircuit(control, target, name=self.name)
+        qc_z = QuantumCircuit(control, target, name=self.name)
+
+        for row in range(y_angle_matrix.shape[0]):
+            qc_y_row = QuantumCircuit(control, target, name=self.name)
+            for (_, j), angle in y_angle_matrix.getrow(row).todok().items():
+                num_extra_control = int(np.floor(np.log2(j + 1)))
+                num_control = len(control) + num_extra_control
+                val_control = row + 2 ** len(control) * int(j - (2 ** num_extra_control - 1))
+                # The Ry Gate has not a divided by two, must do so.
+                gate = RYGate(-angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
+                qc_y_row.append(gate, list(control) + target[-1:-2 - num_extra_control:-1])
+            qc_y += qc_y_row.reverse_ops().inverse()
+        if not no_z_rotations:
+            for row in range(z_angle_matrix.shape[0]):
+                for (i, j), angle in z_angle_matrix.getrow(row).todok().items():
+                    num_extra_control = int(np.floor(np.log2(i + 1)))
+                    num_control = len(control) + num_extra_control
+                    val_control = row + 2 ** len(control) * int(i - (2 ** num_extra_control - 1))
+                    # The Rz Gate has not a divided by two, must do so.
+                    gate = RZGate(-angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
+                    qc_z.append(gate, list(control) + target[-1:-2 - num_extra_control:-1])
+
+        qc_y.barrier()
+        qc_z.barrier()
+        return qc_y, qc_z
