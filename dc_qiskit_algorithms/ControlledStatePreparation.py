@@ -18,6 +18,8 @@ def _chi(l):
 
 class ControlledStatePreparationGate(Gate):
 
+    _debug_flag: bool = False
+
     def __init__(self, matrix: sparse.dok_matrix) -> None:
         """
         The matrix has the following structure:
@@ -55,6 +57,19 @@ class ControlledStatePreparationGate(Gate):
             matrix_angle[i, j] = np.angle(v)
         self.matrix_abs = matrix_abs
         self.matrix_angle = matrix_angle
+
+    def set_debug_flag(self, flag: bool = False) -> 'ControlledStatePreparationGate':
+        """
+        If this is used, not the standard routine is used (Möttönen state preparation using uniform rotations)
+        but a manual form of several controlled rotations. This makes the plotting and therefore the debugging a lot
+        easier, at the expense of a lot of computational time and a strong increase of cx gates when later executed.
+        Therefore it is really only for debugging!
+
+        :param flag: false is the default, for true you get the multiple controlled rotations.
+        :return: None
+        """
+        self._debug_flag = flag
+        return self
 
     def _to_angle_matrix_y(self) -> Union[sparse.dok_matrix]:
         # First, for each column, the angles that lead to this state need to be computed.
