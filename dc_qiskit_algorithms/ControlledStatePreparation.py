@@ -193,7 +193,7 @@ class ControlledStatePreparationGate(Gate):
         if not no_z_rotations:
             # A relative phase correction is pretty intensive: a state preparation on the control
             global_phase_correction = MöttönenStatePreparationGate(
-                sparse.dok_matrix(np.exp(-1.0j * global_phases.T.toarray())),
+                sparse.dok_matrix(np.exp(1.0j * global_phases.toarray())),
                 neglect_absolute_value=True
             )
             qc_z.append(global_phase_correction, qargs=control)
