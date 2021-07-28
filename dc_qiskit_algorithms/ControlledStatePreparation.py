@@ -150,25 +150,6 @@ class ControlledStatePreparationGate(Gate):
         qc_y = QuantumCircuit(control, target, name=self.name)
         qc_z = QuantumCircuit(control, target, name=self.name)
 
-        # TODO: old, remove soon
-        # for row in range(y_angle_matrix.shape[0]):
-        #     for (_, j), angle in y_angle_matrix.getrow(row).todok().items():
-        #         num_extra_control = int(np.floor(np.log2(j + 1)))
-        #         num_control = len(control) + num_extra_control
-        #         val_control = row + 2**len(control) * int(j - (2**num_extra_control - 1))
-        #         # The Ry Gate has not a divided by two, must do so.
-        #         gate = RYGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
-        #         qc_y.append(gate, list(control) + target[0:num_extra_control + 1])
-        # if not no_z_rotations:
-        #     for row in range(z_angle_matrix.shape[0]):
-        #         for (i, j), angle in z_angle_matrix.getrow(row).todok().items():
-        #             num_extra_control = int(np.floor(np.log2(i + 1)))
-        #             num_control = len(control) + num_extra_control
-        #             val_control = row + 2 ** len(control) * int(i - (2 ** num_extra_control - 1))
-        #             # The Rz Gate has not a divided by two, must do so.
-        #             gate = RZGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
-        #             qc_z.append(gate, list(control) + target[0:num_extra_control + 1])
-
         # We do a set of uniformly controlled operations from the control register on each target qubit.
         # iterating through the target means that a target qubit that has been handled (i.e. was a target of a
         # uniform rotation) becomes a controlling qubit.
