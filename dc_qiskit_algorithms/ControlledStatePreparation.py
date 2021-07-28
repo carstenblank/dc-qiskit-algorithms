@@ -132,7 +132,7 @@ class ControlledStatePreparationGate(Gate):
         z_angle_matrix, global_phases = self._to_angle_matrix_z()
 
         if self._debug_flag:
-            qc_y, qc_z = self._create_debug_circuit(y_angle_matrix, z_angle_matrix)
+            qc_y, qc_z = self._create_debug_circuit(y_angle_matrix, z_angle_matrix, global_phases)
         else:
             qc_y, qc_z = self._create_production_circuit(y_angle_matrix, z_angle_matrix, global_phases)
 
@@ -200,24 +200,7 @@ class ControlledStatePreparationGate(Gate):
 
         return qc_y, qc_z
 
-    def _create_debug_circuit(self, y_angle_matrix, z_angle_matrix):
-
-        # TODO: the following circuit is not equivalent. Please fix!
-        #                                                                         ░  ░
-        # q^c_0: ──────■─────────────o────────────■───────────■───────────■───────░──░─
-        #              │       ┌─────┴──────┐     │      ┌────┴─────┐┌────┴─────┐ ░  ░
-        # q^t_0: ──────┼───────┤ RY(1.3181) ├─────┼──────┤ RY(pi/2) ├┤ RY(pi/2) ├─░──░─
-        #        ┌─────┴──────┐└─────┬──────┘┌────┴─────┐└────┬─────┘└────┬─────┘ ░  ░
-        # q^t_1: ┤ RY(0.9273) ├──────o───────┤ RY(pi/2) ├─────o───────────■───────░──░─
-        #        └────────────┘              └──────────┘                         ░  ░
-        # ControlledStatePreparationGate(sparse.dok_matrix(matrix)).set_debug_flag(False).definition.draw(fold=-1)
-        #        ┌────────────────────────┐┌──────────────────────────────────┐
-        # q^c_0: ┤0                       ├┤0                                 ├
-        #        │                        ││                                  │
-        # q^t_0: ┤  uni_rot_ry(0.93,1.57) ├┤2 uni_rot_ry(1.32,1.57,0.00,1.57) ├
-        #        │                        ││                                  │
-        # q^t_1: ┤1                       ├┤1                                 ├
-        #        └────────────────────────┘└──────────────────────────────────┘
+    def _create_debug_circuit(self, y_angle_matrix, z_angle_matrix, global_phases):
 
         # As the subspace phase correction is a very expensive module, we only want to do it if the
         # z rotation matrix is non-zero!
@@ -234,19 +217,27 @@ class ControlledStatePreparationGate(Gate):
                 num_extra_control = int(np.floor(np.log2(j + 1)))
                 num_control = len(control) + num_extra_control
                 val_control = row + 2 ** len(control) * int(j - (2 ** num_extra_control - 1))
-                # The Ry Gate has not a divided by two, must do so.
-                gate = RYGate(-angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
-                qc_y_row.append(gate, list(control) + target[-1:-2 - num_extra_control:-1])
-            qc_y += qc_y_row.reverse_ops().inverse()
+                gate = RYGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
+                qargs = list(control) + target[-1:-2 - j:-1]
+                qc_y_row.append(gate, qargs)
+            qc_y += qc_y_row
         if not no_z_rotations:
             for row in range(z_angle_matrix.shape[0]):
-                for (i, j), angle in z_angle_matrix.getrow(row).todok().items():
-                    num_extra_control = int(np.floor(np.log2(i + 1)))
+                for (_, j), angle in z_angle_matrix.getrow(row).todok().items():
+                    num_extra_control = int(np.floor(np.log2(j + 1)))
                     num_control = len(control) + num_extra_control
-                    val_control = row + 2 ** len(control) * int(i - (2 ** num_extra_control - 1))
-                    # The Rz Gate has not a divided by two, must do so.
-                    gate = RZGate(-angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
-                    qc_z.append(gate, list(control) + target[-1:-2 - num_extra_control:-1])
+                    val_control = row + 2 ** len(control) * int(j - (2 ** num_extra_control - 1))
+                    gate = RZGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
+                    qargs = list(control) + target[-1:-2 - j:-1]
+                    qc_z.append(gate, qargs)
+
+        if not no_z_rotations:
+            # A relative phase correction is pretty intensive: a state preparation on the control
+            global_phase_correction = MöttönenStatePreparationGate(
+                sparse.dok_matrix(np.exp(1.0j * global_phases.toarray())),
+                neglect_absolute_value=True
+            )
+            qc_z.append(global_phase_correction, qargs=control)
 
         qc_y.barrier()
         qc_z.barrier()
