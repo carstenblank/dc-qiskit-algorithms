@@ -31,9 +31,8 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
-# noinspection NonAsciiCharacters
 @ddt
-class ControlledMottonenStatePrepTests(unittest.TestCase):
+class AngleMatrixYTests(unittest.TestCase):
     @unpack
     @test_data(
         {'matrix': np.sqrt([
@@ -65,12 +64,23 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
 
         self.assertAlmostEqual(linalg.norm(abs_matrix - matrix_recovered), 0.0, delta=1e-13)
 
+
+@ddt
+class AngleMatrixZTests(unittest.TestCase):
     @unpack
     @test_data(
-        {'matrix': np.sqrt([
-            [-0.25 + 0j, +0.25 + 0j, -0.25 + 0j, +0.25 + 0j],
-            [+0.25 + 0j, +0.25 + 0j, +0.25 + 0j, +0.25 + 0j]
-        ])}
+        {
+            'matrix': np.sqrt([
+                [-0.25 + 0j, +0.25 + 0j, -0.25 + 0j, +0.25 + 0j],
+                [+0.25 + 0j, +0.25 + 0j, +0.25 + 0j, +0.25 + 0j]
+            ])
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.50 + 0j, +0.30 + 0j, +0.20 + 0j, +0.00 + 0j],
+                [+0.50 + 0j, -0.25 + 0j, +0.25 + 0j, +0.25 + 0j]
+            ])
+        }
     )
     def test_angle_matrix_z(self, matrix):
 
@@ -101,32 +111,99 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
 
         self.assertAlmostEqual(np.linalg.norm(phase_matrix - matrix_recovered_1), 0.0, delta=1e-13)
 
+
+@ddt
+class ControlledMottonenStatePrepTests(unittest.TestCase):
     @unpack
     @test_data(
-        {'matrix': np.sqrt([
-            [+0.5, +0.5],
-            [+0.6, +0.4],
-            [+0.7, +0.3],
-            [+0.9, +0.1]
-        ])},
-        {'matrix': np.sqrt([
-            [+0.50, +0.30, +0.20, +0.00],
-            [+0.25, +0.25, +0.25, +0.25]
-        ])},
-        # {'matrix': [
-        #     [+0.5, +0.1, +0.5, +0.1],
-        #     [+0.1, +0.1, +0.5, +0.0],
-        #     [+0.3, +0.1, +0.1, +0.1],
-        #     [+0.1, +0.1, +0.0, +0.0]
-        # ]},
-        # {'matrix': np.asarray([
-        #     [+0.5, +0.1, +0.1, +0.0],
-        #     [+0.1, -0.4, +0.1, +0.0],
-        #     [+0.2, +0.4, +0.1, +1.0],
-        #     [+0.1, +0.1, +0.7, +0.0]
-        # ])}
+        {
+            'matrix': np.sqrt([
+                [+0.5, +0.5],
+                [0.5 * np.exp(1j * np.pi), 0.5 * np.exp(1j * 0)]
+            ]),
+            'debug_circuit': False
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.5, +0.5],
+                [0.5 * np.exp(1j * np.pi), 0.5 * np.exp(1j * 0)]
+            ]),
+            'debug_circuit': True
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.5, +0.5],
+                [+0.6, +0.4],
+                [+0.7, +0.3],
+                [+0.9, +0.1]
+            ]),
+            'debug_circuit': False
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.5, +0.5],
+                [+0.6, +0.4],
+                [+0.7, +0.3],
+                [+0.9, +0.1]
+            ]),
+            'debug_circuit': True
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.50, +0.30, +0.20, +0.00],
+                [+0.25, +0.25, +0.25, +0.25]
+            ]),
+            'debug_circuit': False
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.50, +0.30, +0.20, +0.00],
+                [+0.25, +0.25, +0.25, +0.25]
+            ]),
+            'debug_circuit': True
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.50, +0.30, +0.20, +0.00],
+                [+0.25, +0.25, +0.25, +0.25],
+                [+0.10, +0.10, +0.40, +0.40],
+                [+0.40, +0.10, +0.30, +0.20],
+                [+0.50, +0.30, +0.20, +0.00],
+                [+0.25, +0.25, +0.25, +0.25],
+                [+0.10, +0.10, +0.40, +0.40],
+                [+0.40, +0.10, +0.30, +0.20]
+            ]),
+            'debug_circuit': True
+        },
+        {
+            'matrix': np.sqrt([
+                [+0.50, +0.30, +0.20, +0.00],
+                [+0.25, +0.25, +0.25, +0.25],
+                [+0.10, +0.10, +0.40, +0.40],
+                [+0.40, +0.10, +0.30, +0.20],
+                [+0.50, +0.30, +0.20, +0.00],
+                [+0.25, +0.25, +0.25, +0.25],
+                [+0.10, +0.10, +0.40, +0.40],
+                [+0.40, +0.10, +0.30, +0.20]
+            ]),
+            'debug_circuit': False
+        },
+        {
+            'matrix': np.sqrt([
+                [0.50 * np.exp(1j * 0), 0.30 * np.exp(1j * 0),      0.20 * np.exp(1j * 0), 0.00 * np.exp(1j * 0)],
+                [0.40 * np.exp(1j * 0), 0.10 * np.exp(-1j * np.pi), 0.25 * np.exp(1j * 0), 0.25 * np.exp(1j * 0)]
+            ]),
+            'debug_circuit': False
+        },
+        {
+            'matrix': np.sqrt([
+                [0.50 * np.exp(1j * 0), 0.30 * np.exp(1j * 0),      0.20 * np.exp(1j * 0), 0.00 * np.exp(1j * 0)],
+                        [0.40 * np.exp(1j * 0), 0.10 * np.exp(-1j * np.pi), 0.25 * np.exp(1j * 0), 0.25 * np.exp(1j * 0)]
+            ]),
+            'debug_circuit': True
+        }
     )
-    def test_define(self, matrix):
+    def test_define(self, matrix, debug_circuit):
         log.info("STARTING TEST")
 
         control_qubits = int(np.ceil(np.log2(matrix.shape[0])))
@@ -149,9 +226,14 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
         # Here we do the equal superposition on the control register as assumed above.
         qc.h(ctrl_qb)
         qc.append(
-            ControlledStatePreparationGate(sparse.dok_matrix(matrix)).set_debug_flag(False),
+            ControlledStatePreparationGate(sparse.dok_matrix(matrix)).set_debug_flag(debug_circuit),
             list(ctrl_qb) + list(tgt_qb)
         )
+        drawing = ControlledStatePreparationGate(sparse.dok_matrix(matrix)) \
+            .set_debug_flag(debug_circuit) \
+            .definition \
+            .draw(fold=-1)
+        log.info(f'Circuit:\n{drawing}')
 
         # The the resulting state vector from the state vector simulator
         backend: AerBackend = qiskit.Aer.get_backend('statevector_simulator')
@@ -164,7 +246,7 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
         # If this is the case, taking the angle difference and correcting it, should give the same vector
         correction = np.angle(theoretical_state_vector[0]) - np.angle(vector[0])
         vector_phase_corrected = vector * np.exp(1.0j * correction)
-        log.info(f"Actual State: {theoretical_state_vector.tolist()}")
+        log.info(f"Actual State: {vector_phase_corrected.tolist()}")
 
         diff = vector_phase_corrected - theoretical_state_vector
         self.assertAlmostEqual(np.linalg.norm(diff), 0.0, places=13)
