@@ -14,6 +14,6 @@
 from .DraperAdder import DraperAdderGate
 from .Qft import QuantumFourierTransformGate
 from .UniformRotation import UniformRotationGate, MultiControlledXGate
-from .MöttönenStatePreparation import MöttönenStatePreparationGate
+from .MottonenStatePreparation import MottonenStatePreparationGate
 from .FlipFlopQuantumRam import FFQramDb, FFQramEntry
 from .ControlledStatePreparation import ControlledStatePreparationGate

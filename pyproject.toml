@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "dc-qiskit-algorithms"
+version = "0.0.14"
+description = ""
+authors = [
+    "Carsten Blank <blank@data-cybernetics.com>",
+    "Sebastian Boerakker <boerakker@data-cybernetics.com>"
+]
+readme = "README.rst"
+packages = [
+    {include = "dc_qiskit_algorithms"}
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4"
+qiskit = "*"
+qiskit-aer = "*"
+bitstring = "*"
+
+#[tool.poetry.group.dev.dependencies]
+#jupyter = "*"
+#matplotlib = "*"
+
+[tool.poetry.group.test.dependencies]
+pytest = "*"
+ddt = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
