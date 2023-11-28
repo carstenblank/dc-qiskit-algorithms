@@ -9,7 +9,7 @@ from scipy import sparse
 from scipy.sparse.linalg import norm
 
 from dc_qiskit_algorithms import UniformRotationGate
-from dc_qiskit_algorithms.MöttönenStatePreparation import get_alpha_y, get_alpha_z, MöttönenStatePreparationGate
+from dc_qiskit_algorithms.MottonenStatePreparation import get_alpha_y, get_alpha_z, MottonenStatePreparationGate
 
 
 def _chi(l):
@@ -49,7 +49,7 @@ class ControlledStatePreparationGate(Gate):
 
         # Of course we save the matrix but we need to calculate the absolute value and the angle/phase
         # matrix for the core logic
-        self.matrix = matrix  # type: Union[sparse.dok_matrix]
+        self.matrix: Union[sparse.dok_matrix] = matrix
         matrix_abs = sparse.dok_matrix(matrix.shape)
         matrix_angle = sparse.dok_matrix(matrix.shape)
         for (i, j), v in self.matrix.items():
@@ -136,7 +136,7 @@ class ControlledStatePreparationGate(Gate):
         else:
             qc_y, qc_z = self._create_production_circuit(y_angle_matrix, z_angle_matrix, global_phases)
 
-        qc = qc_y + qc_z
+        qc = qc_y & qc_z
         self._definition = qc
 
     def _create_production_circuit(self, y_angle_matrix, z_angle_matrix, global_phases):
@@ -192,7 +192,7 @@ class ControlledStatePreparationGate(Gate):
 
         if not no_z_rotations:
             # A relative phase correction is pretty intensive: a state preparation on the control
-            global_phase_correction = MöttönenStatePreparationGate(
+            global_phase_correction = MottonenStatePreparationGate(
                 sparse.dok_matrix(np.exp(1.0j * global_phases.toarray())),
                 neglect_absolute_value=True
             )
@@ -220,7 +220,7 @@ class ControlledStatePreparationGate(Gate):
                 gate = RYGate(angle).control(num_ctrl_qubits=num_control, ctrl_state=val_control)
                 qargs = list(control) + target[-1:-2 - j:-1]
                 qc_y_row.append(gate, qargs)
-            qc_y += qc_y_row
+            qc_y &= qc_y_row
         if not no_z_rotations:
             for row in range(z_angle_matrix.shape[0]):
                 for (_, j), angle in z_angle_matrix.getrow(row).todok().items():
@@ -233,7 +233,7 @@ class ControlledStatePreparationGate(Gate):
 
         if not no_z_rotations:
             # A relative phase correction is pretty intensive: a state preparation on the control
-            global_phase_correction = MöttönenStatePreparationGate(
+            global_phase_correction = MottonenStatePreparationGate(
                 sparse.dok_matrix(np.exp(1.0j * global_phases.toarray())),
                 neglect_absolute_value=True
             )

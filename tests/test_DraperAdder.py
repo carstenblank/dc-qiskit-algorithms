@@ -19,7 +19,7 @@ import logging
 import qiskit
 from ddt import ddt, data as test_data, unpack
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit.providers.aer.backends.aerbackend import AerBackend
+from qiskit_aer.backends.aerbackend import AerBackend
 
 import dc_qiskit_algorithms.DraperAdder
 

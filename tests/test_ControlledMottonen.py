@@ -18,8 +18,8 @@ import numpy as np
 import qiskit
 from ddt import ddt, data as test_data, unpack
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.providers.aer import AerJob
-from qiskit.providers.aer.backends.aerbackend import AerBackend
+from qiskit_aer import AerJob
+from qiskit_aer.backends.aerbackend import AerBackend
 from qiskit.result import Result
 from scipy import sparse
 from scipy.sparse import linalg
@@ -239,7 +239,7 @@ class ControlledMottonenStatePrepTests(unittest.TestCase):
         backend: AerBackend = qiskit.Aer.get_backend('statevector_simulator')
         job: AerJob = qiskit.execute(qc, backend)
         result: Result = job.result()
-        vector: np.ndarray = result.get_statevector()
+        vector: np.ndarray = np.asarray(result.get_statevector())
 
         # Computing the test:
         # The extracted state from the simulation is allowed to be off by a common (global) phase

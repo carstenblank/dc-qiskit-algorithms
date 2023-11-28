@@ -19,9 +19,8 @@ import numpy as np
 import qiskit
 from ddt import ddt, data as test_data, unpack
 from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
-from qiskit.circuit.measure import measure
-from qiskit.providers import BaseBackend
 from qiskit.result import Result
+from qiskit_aer import StatevectorSimulator, QasmSimulator
 
 from dc_qiskit_algorithms.FlipFlopQuantumRam import FFQramDb, add_vector
 
@@ -48,7 +47,7 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         qc.h(bus)
         db.add_to_circuit(qc, bus, reg[0])
 
-        local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
+        local_backend: StatevectorSimulator = qiskit.Aer.get_backend('statevector_simulator')
 
         job = qiskit.execute(qc, backend=local_backend, shots=1)
         result = job.result()  # type: Result
@@ -70,10 +69,10 @@ class FlipFlopQuantumRamnStatePrepTests(unittest.TestCase):
         self.assertTrue(positive_global_phase_all_almost_equal or negative_global_phase_all_almost_equal)
 
         # Probability Vector by Measurement
-        measure(qc, bus, c_bus)
-        measure(qc, reg, c_reg)
+        qc.measure(bus, c_bus)
+        qc.measure(reg, c_reg)
 
-        local_qasm_backend = qiskit.Aer.get_backend('qasm_simulator')  # type: BaseBackend
+        local_qasm_backend: QasmSimulator = qiskit.Aer.get_backend('qasm_simulator')
         shots = 2**16
         job = qiskit.execute(qc, backend=local_qasm_backend, shots=shots)
         result = job.result()  # type: Result

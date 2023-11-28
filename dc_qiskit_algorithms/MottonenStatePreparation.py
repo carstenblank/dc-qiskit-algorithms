@@ -95,7 +95,7 @@ class RYGateNegatedAngle(RYGate):
 
 
 # noinspection NonAsciiCharacters
-class MöttönenStatePreparationGate(Gate):
+class MottonenStatePreparationGate(Gate):
     """Uniform rotation Y gate (Möttönen)."""
 
     def __init__(self, vector, neglect_absolute_value=False):
@@ -132,14 +132,14 @@ class MöttönenStatePreparationGate(Gate):
         no_z_rotations = abs(norm(omega)) < 1e-3
 
         q = QuantumRegister(self.num_qubits, "qubits")
-        qc = QuantumCircuit(q, name=self.name)
+        qc: QuantumCircuit = QuantumCircuit(q, name=self.name)
 
         if not no_z_rotations:
             qc_rot_z = self.apply_rot_z(omega, q)
-            qc = qc.combine(qc_rot_z)
+            qc = qc.compose(qc_rot_z)
         if not self.neglect_absolute_value:
             qc_rot_y = self.apply_rot_y(a, q)
-            qc = qc.combine(qc_rot_y)
+            qc = qc.compose(qc_rot_y)
 
         self._definition = qc.inverse()
 
@@ -200,9 +200,9 @@ def state_prep_möttönen(self, a, qubits):
         qubits = list(qubits)
 
     if isinstance(a, sparse.dok_matrix):
-        return self.append(MöttönenStatePreparationGate(a), qubits, [])
+        return self.append(MottonenStatePreparationGate(a), qubits, [])
     else:
-        return self.append(MöttönenStatePreparationGate(sparse.dok_matrix([a]).transpose()), qubits)
+        return self.append(MottonenStatePreparationGate(sparse.dok_matrix([a]).transpose()), qubits)
 
 
 # noinspection NonAsciiCharacters

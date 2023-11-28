@@ -17,13 +17,13 @@ from typing import List
 
 import numpy as np
 import qiskit
+from qiskit.providers import JobV1
+from qiskit_aer import Aer, StatevectorSimulator, QasmSimulator
 from qiskit import QuantumRegister, QuantumCircuit, ClassicalRegister
 from ddt import ddt, data as test_data, unpack
-from qiskit.circuit.measure import measure
-from qiskit.providers import BaseBackend, BaseJob
 from qiskit.result import Result
 
-import dc_qiskit_algorithms.MöttönenStatePreparation
+import dc_qiskit_algorithms.MottonenStatePreparation
 
 logging.basicConfig(format=logging.BASIC_FORMAT, level='INFO')
 log = logging.getLogger('test_DraperAdder')
@@ -31,7 +31,7 @@ log = logging.getLogger('test_DraperAdder')
 
 # noinspection NonAsciiCharacters
 @ddt
-class MöttönenStatePrepTests(unittest.TestCase):
+class MottonenStatePrepTests(unittest.TestCase):
 
     def execute_test(self, vector: List[float]):
         probability_vector = [np.absolute(e)**2 for e in vector]
@@ -42,10 +42,10 @@ class MöttönenStatePrepTests(unittest.TestCase):
         qc = QuantumCircuit(reg, c, name='state prep')
         qc.state_prep_möttönen(vector, reg)
 
-        local_backend = qiskit.Aer.get_backend('statevector_simulator')  # type: BaseBackend
+        local_backend: StatevectorSimulator = Aer.get_backend('statevector_simulator')
 
-        job = qiskit.execute(qc, backend=local_backend, shots=1)  # type: BaseJob
-        result = job.result()  # type: Result
+        job: JobV1 = qiskit.execute(qc, backend=local_backend, shots=1)
+        result: Result = job.result()
 
         # State vector
         result_state_vector = result.get_statevector('state prep')
@@ -66,10 +66,10 @@ class MöttönenStatePrepTests(unittest.TestCase):
             self.assertAlmostEqual(expected, actual, places=2)
 
         # Probability Vector by Measurement
-        measure(qc, reg, c)
-        local_qasm_backend = qiskit.Aer.get_backend('qasm_simulator')  # type: BaseBackend
+        qc.measure(reg, c)
+        local_qasm_backend: QasmSimulator = Aer.get_backend('qasm_simulator')
         shots = 2**12
-        job = qiskit.execute(qc, backend=local_qasm_backend, shots=shots)  # type: BaseJob
+        job: JobV1 = qiskit.execute(qc, backend=local_qasm_backend, shots=shots)
         result = job.result()  # type: Result
         counts = result.get_counts('state prep')
         measurement_probability_vector = [0.0 for e in result_state_vector]
@@ -101,8 +101,8 @@ class MöttönenStatePrepTests(unittest.TestCase):
         self.execute_test(list(vector))
 
     def test_instantiation(self):
-        gate = dc_qiskit_algorithms.MöttönenStatePreparationGate([1.0, 0.0])
-        self.assertIsInstance(gate, dc_qiskit_algorithms.MöttönenStatePreparationGate)
+        gate = dc_qiskit_algorithms.MottonenStatePreparationGate([1.0, 0.0])
+        self.assertIsInstance(gate, dc_qiskit_algorithms.MottonenStatePreparationGate)
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@
 from typing import Optional, Tuple, List, Union
 
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.circuit import Gate, Instruction, Qubit
+from qiskit.circuit import Gate, Instruction, Qubit, InstructionSet
 from qiskit.extensions import XGate, CU1Gate
 
 from dc_qiskit_algorithms.Qft import QuantumFourierTransformGate
@@ -42,7 +42,6 @@ class DraperAdderGate(Gate):
         self.b_01s = b_01s
 
     def _define(self):
-        rule = []  # type: List[Tuple[Gate, list, list]]
 
         q = QuantumRegister(len(self.a_01s) + len(self.b_01s), "q")
         qc = QuantumCircuit(q, name=self.name)
@@ -52,23 +51,22 @@ class DraperAdderGate(Gate):
 
         for i, c in enumerate(self.a_01s):
             if c == '1':
-                rule.append((XGate(), [a[i]], []))
+                qc.append(XGate(), [a[i]], [])
 
         for i, c in enumerate(self.b_01s):
             if c == '1':
-                rule.append((XGate(), [b[i]], []))
+                qc.append(XGate(), [b[i]], [])
 
-        rule.append((QuantumFourierTransformGate(len(a)), a, []))
+        qc.append(QuantumFourierTransformGate(len(a)), a, [])
 
         for b_index in reversed(range(len(b))):
             theta_index = 1
             for a_index in reversed(range(b_index + 1)):
-                rule.append((CU1Gate(qft.get_theta(theta_index)), [b[b_index], a[a_index]], []))
+                qc.append(CU1Gate(qft.get_theta(theta_index)), [b[b_index], a[a_index]], [])
                 theta_index += 1
 
-        rule.append((QuantumFourierTransformGate(len(a)).inverse(), a, []))
+        qc.append(QuantumFourierTransformGate(len(a)).inverse(), a, [])
 
-        qc._data = rule.copy()
         self.definition = qc
 
     def inverse(self):
@@ -83,7 +81,7 @@ class DraperAdderGate(Gate):
 
 
 def add_draper(self, input_a, input_b, qubits, length=None):
-    # type: (QuantumCircuit, int, int, Union[QuantumRegister, List[Qubit]], Optional[int]) -> Instruction
+    # type: (QuantumCircuit, int, int, Union[QuantumRegister, List[Qubit]], Optional[int]) -> InstructionSet
 
     if isinstance(qubits, QuantumRegister):
         qubits = list(qubits)
