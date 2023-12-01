@@ -74,7 +74,7 @@ You can use the state preparation as follows
 
 .. code-block:: python
 
-    from dc_qiskit_algorithms.MöttönenStatePrep import state_prep_möttönen
+    from dc_qiskit_algorithms.MottonenStatePrep import state_prep_möttönen
 
     vector = [-0.1, 0.2, -0.3, 0.4, -0.5, 0.6, -0.7, 0.8]
     vector = numpy.asarray(vector)
