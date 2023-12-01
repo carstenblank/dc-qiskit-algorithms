@@ -43,21 +43,19 @@ class QuantumFourierTransformGate(Gate):
         super().__init__("qft", num_qubits=num_qubits, params=[])
 
     def _define(self):
-        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
         qreg = QuantumRegister(self.num_qubits, "qreg")
         qc = QuantumCircuit(qreg, name=self.name)
         q_list = list(qreg)
 
         unused = q_list.copy()
         for qr in q_list:
-            rule.append((HGate(), [qr], []))
+            qc.append(HGate(), [qr], [])
             k = 2
             unused.remove(qr)
             for qj in unused:
-                rule.append((CU1Gate(get_theta(k)), [qj, qr], []))
+                qc.append(CU1Gate(get_theta(k)), [qj, qr], [])
                 k = k + 1
 
-        qc._data = rule.copy()
         self.definition = qc
 
     def inverse(self):

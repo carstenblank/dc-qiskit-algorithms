@@ -19,6 +19,7 @@ from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.circuit import Gate, Instruction, Qubit
 from qiskit.extensions import RYGate, RZGate
 from scipy import sparse
+from scipy.sparse.linalg import norm
 
 from .UniformRotation import UniformRotationGate
 
@@ -94,7 +95,7 @@ class RYGateNegatedAngle(RYGate):
 
 
 # noinspection NonAsciiCharacters
-class MöttönenStatePreparationGate(Gate):
+class MottonenStatePreparationGate(Gate):
     """Uniform rotation Y gate (Möttönen)."""
 
     def __init__(self, vector, neglect_absolute_value=False):
@@ -111,7 +112,11 @@ class MöttönenStatePreparationGate(Gate):
             vector = sparse.dok_matrix([vector]).transpose()
         self.neglect_absolute_value = neglect_absolute_value
         num_qubits = int(math.log2(vector.shape[0]))
-        super().__init__("state_prep_möttönen", num_qubits=num_qubits, params=[])
+
+        vector_str = ",".join([f'{v:.2f}' for v in vector.toarray()[:, 0]])
+        label = f'state({vector_str})' if len(vector) <= 16 else None
+
+        super().__init__("state_prep_möttönen", num_qubits=num_qubits, params=[], label=label)
         self.vector = vector  # type: sparse.dok_matrix
 
     def _define(self):
@@ -122,14 +127,19 @@ class MöttönenStatePreparationGate(Gate):
             a[i, j] = np.absolute(v)
             omega[i, j] = np.angle(v)
 
-        q = QuantumRegister(self.num_qubits, "qubits")
-        qc = QuantumCircuit(q, name=self.name)
+        # As the subspace phase correction is a very expensive module, we only want to do it if the
+        # z rotation matrix is non-zero!
+        no_z_rotations = abs(norm(omega)) < 1e-3
 
-        qc_rot_z = self.apply_rot_z(omega, q)
-        qc = qc.combine(qc_rot_z)
+        q = QuantumRegister(self.num_qubits, "qubits")
+        qc: QuantumCircuit = QuantumCircuit(q, name=self.name)
+
+        if not no_z_rotations:
+            qc_rot_z = self.apply_rot_z(omega, q)
+            qc = qc.compose(qc_rot_z)
         if not self.neglect_absolute_value:
             qc_rot_y = self.apply_rot_y(a, q)
-            qc = qc.combine(qc_rot_y)
+            qc = qc.compose(qc_rot_y)
 
         self._definition = qc.inverse()
 
@@ -190,9 +200,9 @@ def state_prep_möttönen(self, a, qubits):
         qubits = list(qubits)
 
     if isinstance(a, sparse.dok_matrix):
-        return self.append(MöttönenStatePreparationGate(a), qubits, [])
+        return self.append(MottonenStatePreparationGate(a), qubits, [])
     else:
-        return self.append(MöttönenStatePreparationGate(sparse.dok_matrix([a]).transpose()), qubits)
+        return self.append(MottonenStatePreparationGate(sparse.dok_matrix([a]).transpose()), qubits)
 
 
 # noinspection NonAsciiCharacters

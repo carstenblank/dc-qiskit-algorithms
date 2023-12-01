@@ -17,7 +17,7 @@ from typing import List, Tuple, Union, Callable, Iterable
 
 import numpy as np
 from qiskit import QuantumRegister, QuantumCircuit
-from qiskit.circuit import Gate, Instruction, Qubit, Clbit
+from qiskit.circuit import Gate, Instruction, Qubit, Clbit, InstructionSet
 from qiskit.extensions import HGate, RZGate, RYGate, CXGate
 from scipy import sparse
 
@@ -115,7 +115,11 @@ class UniformRotationGate(Gate):
         :param alpha: The conditional rotation angles
         """
         number_of_control_qubits = int(np.ceil(np.log2(alpha.shape[0])))
-        super().__init__("uni_rot_" + gate(0).name, num_qubits=number_of_control_qubits + 1, params=[])
+
+        vector_str = ",".join([f'{v:.2f}' for v in alpha.toarray()[:, 0]])
+        label = f'uni_rot_{gate(0).name}({vector_str})' if len(alpha) <= 16 else None
+
+        super().__init__(f'uni_rot_{gate(0).name}', num_qubits=number_of_control_qubits + 1, params=[], label=label)
         self.alpha = alpha  # type: sparse.dok_matrix
         self.gate = gate  # type: Callable[[float], Gate]
 
@@ -147,7 +151,7 @@ class UniformRotationGate(Gate):
 
 
 def uni_rot(self, rotation_gate, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Callable[[float], Gate], Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Callable[[float], Gate], Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> InstructionSet
     """
     Apply a generic uniform rotation with rotation gate.
 
@@ -185,7 +189,7 @@ def uni_rot_dg(self, rotation_gate, alpha, control_qubits, tgt):
 
 
 def unirz(self, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> InstructionSet
     """
     Apply a uniform rotation around z.
 
@@ -213,7 +217,7 @@ def unirz_dg(self, alpha, control_qubits, tgt):
 
 
 def uniry(self, alpha, control_qubits, tgt):
-    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, Union[List[float], sparse.dok_matrix], Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> InstructionSet
     """
     Apply a uniform rotation around y.
 
@@ -241,7 +245,7 @@ def uniry_dg(self, alpha, control_qubits, tgt):
 
 
 def cnry(self, theta, control_qubits, tgt):
-    # type: (QuantumCircuit, float, Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> Instruction
+    # type: (QuantumCircuit, float, Union[List[Qubit],QuantumRegister], Union[Qubit, QuantumRegister]) -> InstructionSet
     """
     Apply a multiple controlled y rotation on the target qubit.
 
@@ -289,16 +293,14 @@ class MultiControlledXGate(Gate):
     def _define(self):
         q = QuantumRegister(self.num_qubits, "q")
         qc = QuantumCircuit(q, name=self.name)
-        rule = []  # type: List[Tuple[Gate, List[Qubit], List[Clbit]]]
 
         length = 2 ** self.control_qubits
         alpha = sparse.dok_matrix((length, 1), dtype=np.float64)
         alpha[self.conditional_case] = np.pi
-        rule.append((HGate(), [q[-1]], []))
-        rule.append((UniformRotationGate(RYGate, alpha), list(q), []))
-        rule.append((HGate(), [q[-1]], []))
+        qc.append(HGate(), [q[-1]], [])
+        qc.append(UniformRotationGate(RYGate, alpha), list(q), [])
+        qc.append(HGate(), [q[-1]], [])
 
-        qc._data = rule.copy()
         self.definition = qc
 
 
